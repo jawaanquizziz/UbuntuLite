@@ -22,7 +22,7 @@
 No databases, no server-side logic, and no installation required. The entire simulator operates locally in the browser.
 
 1. Clone or download this repository.
-2. Open \`ubuntu_terminal.html\` in any modern web browser or start a local server (e.g. VS Code Live Server).
+2. Open \`index.html\` in any modern web browser or start a local server (e.g. VS Code Live Server).
 3. Login using the default credentials:
    - **Username**: \`root\`
    - **Password**: \`root123\`
