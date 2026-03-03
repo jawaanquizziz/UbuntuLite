@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Linux Practical Command Book</title>
+
+<style>
+body {
+    font-family: monospace;
+    background-color: #0f172a;
+    color: #e2e8f0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #38bdf8;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.command-box {
+    background: #1e293b;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+button {
+    background: #38bdf8;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+button:hover {
+    background: #0ea5e9;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Linux Practical Command Handbook</h1>
+
+<input type="text" id="search" placeholder="Search command..." onkeyup="searchCommand()">
+
+<div id="commandList"></div>
+
+<script>
+
+const commands = [
+
+/* FILE MANAGEMENT */
+{cmd:"pwd", desc:"Show current directory"},
+{cmd:"ls -lah", desc:"List files with details and hidden"},
+{cmd:"cd /path", desc:"Change directory"},
+{cmd:"mkdir folder", desc:"Create directory"},
+{cmd:"rmdir folder", desc:"Remove empty directory"},
+{cmd:"touch file.txt", desc:"Create empty file"},
+{cmd:"rm -rf folder", desc:"Remove file/folder recursively"},
+{cmd:"cp -rv src dest", desc:"Copy files/folders"},
+{cmd:"mv old new", desc:"Move or rename file"},
+{cmd:"find /home -name \"*.txt\"", desc:"Find files by name"},
+{cmd:"stat file.txt", desc:"Show file details"},
+
+/* VIEWING */
+{cmd:"cat file.txt", desc:"View file"},
+{cmd:"less file.txt", desc:"Scroll file"},
+{cmd:"head -n 10 file.txt", desc:"Show first lines"},
+{cmd:"tail -f file.txt", desc:"Show last lines live"},
+{cmd:"wc -l file.txt", desc:"Count lines"},
+
+/* USER MANAGEMENT */
+{cmd:"whoami", desc:"Show current user"},
+{cmd:"id user", desc:"Show UID and GID"},
+{cmd:"sudo adduser user", desc:"Add new user"},
+{cmd:"sudo userdel user", desc:"Delete user"},
+{cmd:"passwd user", desc:"Change password"},
+{cmd:"su root", desc:"Switch user"},
+{cmd:"groups user", desc:"Show user groups"},
+{cmd:"sudo groupadd group", desc:"Create group"},
+{cmd:"sudo groupdel group", desc:"Delete group"},
+{cmd:"sudo usermod -aG group user", desc:"Add user to group"},
+
+/* PERMISSIONS */
+{cmd:"chmod 755 file.sh", desc:"Change permissions"},
+{cmd:"chown user:group file", desc:"Change ownership"},
+{cmd:"chgrp group file", desc:"Change group"},
+{cmd:"umask 022", desc:"Set default permissions"},
+
+/* PROCESS */
+{cmd:"ps aux", desc:"Show running processes"},
+{cmd:"top", desc:"Real-time process monitor"},
+{cmd:"htop", desc:"Interactive process viewer"},
+{cmd:"kill 1234", desc:"Kill process"},
+{cmd:"jobs", desc:"Show background jobs"},
+{cmd:"bg %1", desc:"Resume background"},
+{cmd:"fg %1", desc:"Bring to foreground"},
+
+/* NETWORK */
+{cmd:"ping -c 4 google.com", desc:"Check connectivity"},
+{cmd:"curl -I https://example.com", desc:"Fetch headers"},
+{cmd:"wget https://file", desc:"Download file"},
+{cmd:"ssh user@ip", desc:"Remote login"},
+{cmd:"scp file user@ip:/path", desc:"Copy over SSH"},
+{cmd:"netstat -tuln", desc:"Show open ports"},
+{cmd:"ip addr show", desc:"Show IP address"},
+
+/* PACKAGE */
+{cmd:"sudo apt update", desc:"Update packages"},
+{cmd:"sudo apt install pkg", desc:"Install package"},
+{cmd:"sudo dnf install pkg", desc:"Install (Fedora)"},
+{cmd:"sudo pacman -S pkg", desc:"Install (Arch)"},
+{cmd:"snap install pkg", desc:"Install snap"},
+
+/* SYSTEM INFO */
+{cmd:"df -h", desc:"Disk usage"},
+{cmd:"du -sh folder", desc:"Folder size"},
+{cmd:"free -h", desc:"Memory usage"},
+{cmd:"uptime", desc:"System uptime"},
+
+/* ARCHIVING */
+{cmd:"tar -cvf file.tar folder/", desc:"Create archive"},
+{cmd:"tar -xzvf file.tar.gz", desc:"Extract archive"},
+{cmd:"gzip file.txt", desc:"Compress file"},
+{cmd:"zip archive.zip file", desc:"Zip file"},
+{cmd:"unzip archive.zip", desc:"Unzip file"},
+
+/* GREP */
+{cmd:"grep -i word file.txt", desc:"Search word"},
+{cmd:"grep -r word /dir", desc:"Recursive search"},
+{cmd:"grep -n word file", desc:"Show line number"},
+
+/* REDIRECTION */
+{cmd:"ls > file.txt", desc:"Redirect output"},
+{cmd:"echo text >> file.txt", desc:"Append output"},
+{cmd:"command 2> error.txt", desc:"Redirect error"},
+{cmd:"command1 | command2", desc:"Pipe commands"},
+
+/* SERVICES */
+{cmd:"sudo systemctl start ssh", desc:"Start service"},
+{cmd:"sudo systemctl stop ssh", desc:"Stop service"},
+{cmd:"sudo systemctl status ssh", desc:"Check service"},
+{cmd:"sudo systemctl enable ssh", desc:"Enable at boot"}
+
+];
+
+function displayCommands(list) {
+    const container = document.getElementById("commandList");
+    container.innerHTML = "";
+
+    list.forEach(item => {
+        container.innerHTML += `
+        <div class="command-box">
+            <strong>${item.cmd}</strong><br>
+            ${item.desc}<br>
+            <button onclick="copyCommand('${item.cmd}')">Copy</button>
+        </div>
+        `;
+    });
+}
+
+function searchCommand() {
+    const search = document.getElementById("search").value.toLowerCase();
+    const filtered = commands.filter(item =>
+        item.cmd.toLowerCase().includes(search)
+    );
+    displayCommands(filtered);
+}
+
+function copyCommand(text) {
+    navigator.clipboard.writeText(text);
+    alert("Copied: " + text);
+}
+
+displayCommands(commands);
+
+</script>
+
+</body>
+</html>
