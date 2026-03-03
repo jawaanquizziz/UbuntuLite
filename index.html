@@ -1,0 +1,250 @@
+<!-- 
+  © 2026 UbuntuLite. All rights reserved.
+  UbuntuLite: A Web-based Ubuntu Linux Terminal & Desktop Simulator
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UbuntuLite</title>
+    <link rel="stylesheet" href="ubuntu_terminal.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Ubuntu+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-screen-overlay" id="login-screen">
+        <div class="login-container">
+            <div class="user-avatar">
+                <!-- Simple user icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <h2 class="user-name">root</h2>
+            <div class="password-box">
+                <input type="password" id="login-password" placeholder="Password" autofocus>
+                <button id="toggle-password" type="button" title="Show Password">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="eye-icon"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+                <button id="login-btn" title="Log in">
+                    <!-- Right Arrow -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div class="login-error" id="login-error">Incorrect password, please try again.</div>
+            <div class="login-copyright"
+                style="position: absolute; bottom: 20px; font-size: 0.8rem; color: rgba(255,255,255,0.7); text-align: center; width: 100%;">
+                &copy; 2026 UbuntuLite. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop View (Hidden by default until login) -->
+    <div class="desktop-view" id="desktop-view" style="display: none;">
+        <!-- Left Dock / App Launcher -->
+        <div class="desktop-dock">
+            <div class="dock-icon" id="dock-home" title="Home Folder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <div class="dock-icon" id="dock-terminal" title="Terminal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+            </div>
+            <div class="dock-icon" id="dock-settings" title="Settings">
+                <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Desktop Folders / Icons -->
+        <div class="desktop-icons">
+            <div class="desktop-icon" id="desktop-home-icon">
+                <svg class="file-icon folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Home</span>
+            </div>
+        </div>
+
+        <!-- Terminal Window (Hidden by default, launched from dock) -->
+        <div class="terminal-window dark-mode" id="terminal-window" style="display: none;">
+            <!-- Window title bar -->
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="close" id="term-close"></span>
+                    <span class="minimize"></span>
+                    <span class="maximize"></span>
+                </div>
+                <div class="terminal-title">user@ubuntu: ~</div>
+                <div class="terminal-actions">
+                    <button id="theme-toggle" class="action-btn" title="Toggle Light/Dark Mode">
+                        <!-- Sun Icon (Default for dark mode) -->
+                        <svg class="icon theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+                    <button id="help-toggle" class="action-btn" title="Show Commands">
+                        <!-- Book/Help Icon -->
+                        <svg class="icon help-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="terminal-content">
+                <!-- Main editable console area -->
+                <div class="terminal-body" id="terminal-body">
+                    <div id="output"></div>
+                    <div class="input-line">
+                        <span class="prompt"><span class="user">user@ubuntu</span>:<span class="path">~</span>$</span>
+                        <input type="text" id="command-input" autocomplete="off" spellcheck="false" autofocus>
+                    </div>
+                </div>
+
+                <!-- Sidebar for commands -->
+                <div class="terminal-sidebar" id="terminal-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Commands Reference</h3>
+                        <input type="text" id="command-search" placeholder="Search commands...">
+                    </div>
+                    <ul id="command-list" class="command-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Folder Window Mockup -->
+        <div class="folder-window dark-mode" id="folder-window" style="display: none;">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="close" id="folder-close"></span>
+                    <span class="minimize"></span>
+                    <span class="maximize"></span>
+                </div>
+                <div class="terminal-title" id="folder-title">Home</div>
+            </div>
+
+            <!-- Folder Navigation Bar -->
+            <div class="folder-nav">
+                <button id="folder-back-btn" class="nav-btn" title="Go Back">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <div class="folder-path-display" id="folder-path-display">/root</div>
+            </div>
+
+            <div class="folder-content">
+                <!-- Dynamically populated by JS based on file system state -->
+            </div>
+        </div>
+
+        <!-- Text Editor Window Mockup -->
+        <div class="text-editor-window dark-mode" id="text-editor-window" style="display: none;">
+            <div class="terminal-header" style="justify-content: space-between;">
+                <div class="terminal-buttons">
+                    <span class="close" id="editor-close"></span>
+                    <span class="minimize" id="editor-min"></span>
+                    <span class="maximize" id="editor-max"></span>
+                </div>
+                <div class="terminal-title" id="editor-title">Text Editor</div>
+                <div class="terminal-actions" style="width:auto;">
+                    <button id="editor-save-btn" class="nav-btn"
+                        style="font-size: 0.8rem; padding: 2px 8px; width: auto; height: 26px;">Save</button>
+                </div>
+            </div>
+            <div class="editor-content">
+                <textarea id="editor-textarea" spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- Settings Window Mockup -->
+        <div class="settings-window dark-mode" id="settings-window" style="display: none;">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="close" id="settings-close"></span>
+                    <span class="minimize" id="settings-min"></span>
+                    <span class="maximize" id="settings-max"></span>
+                </div>
+                <div class="terminal-title">Settings</div>
+            </div>
+            <div class="settings-content">
+                <h3>Background Appearance</h3>
+                <div class="theme-grid">
+                    <div class="theme-card" data-bg="linear-gradient(135deg, #E95420, #4C1935, #2C001E)"
+                        style="background: linear-gradient(135deg, #E95420, #4C1935, #2C001E);">
+                        <span>Ubuntu Default</span>
+                    </div>
+                    <div class="theme-card" data-bg="linear-gradient(135deg, #0f2027, #203a43, #2c5364)"
+                        style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);">
+                        <span>Deep Space</span>
+                    </div>
+                    <div class="theme-card" data-bg="linear-gradient(135deg, #1fa2ff, #12d8fa, #a6ffcb)"
+                        style="background: linear-gradient(135deg, #1fa2ff, #12d8fa, #a6ffcb);">
+                        <span>Ocean Breeze</span>
+                    </div>
+                    <div class="theme-card" data-bg="linear-gradient(135deg, #ff416c, #ff4b2b)"
+                        style="background: linear-gradient(135deg, #ff416c, #ff4b2b);">
+                        <span>Sunset Orange</span>
+                    </div>
+                    <div class="theme-card" data-bg="linear-gradient(135deg, #8A2387, #E94057, #F27121)"
+                        style="background: linear-gradient(135deg, #8A2387, #E94057, #F27121);">
+                        <span>Warm Horizon</span>
+                    </div>
+                    <div class="theme-card" data-bg="linear-gradient(135deg, #1D2671, #C33764)"
+                        style="background: linear-gradient(135deg, #1D2671, #C33764);">
+                        <span>Midnight Purple</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- End Desktop View -->
+
+    <!-- Logic for the mocked linux environment -->
+    <script src="ubuntu_terminal.js"></script>
+</body>
+
+</html>
