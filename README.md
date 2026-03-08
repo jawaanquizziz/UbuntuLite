@@ -1,50 +1,60 @@
-# UbuntuLite
+# UbuntuLite 2026
 
-> A fully interactive, client-side web application built with HTML, CSS, and Vanilla JavaScript that simulates an Ubuntu Linux desktop environment and terminal interface directly in the browser! Practice over 100+ simulated Linux commands safely.
+![UbuntuLite Desktop Preview](./public/preview.png)
 
-## ✨ Features
-
-- **Ubuntu Lock Screen:** A simulated, aesthetically pleasing Ubuntu-style login screen (Default credentials: \`root\` / \`root123\`).
-- **Interactive Desktop & Dock:** A clean, draggable desktop interface with an app dock, complete with smooth animations.
-- **Virtual File System:** A fully client-side Javascript file system implementation with file paths, state tracking, and content saving.
-- **Terminal Simulator:** 
-  - Over **100+** simulated Linux commands representing categories like File Management, User Administration, Process Tracking, and Networking.
-  - Command History (up/down arrows).
-  - Searchable command reference sidebar.
-  - Light/Dark mode toggling.
-  - Interactive \`neofetch\` and \`top\` mock outputs.
-- **GUI File Explorer:** A visual folder application allowing you to point-and-click to navigate directories natively.
-- **Text Editor:** A built-in graphical text editor to click, view, edit, and save mock `txt` files on the virtual system.
-- **Settings & Theming:** Customize your entire desktop with an array of beautiful, dynamic gradient themes natively.
-
-## 🚀 Getting Started
-
-No databases, no server-side logic, and no installation required. The entire simulator operates locally in the browser.
-
-1. Clone or download this repository.
-2. Open \`index.html\` in any modern web browser or start a local server (e.g. VS Code Live Server).
-3. Login using the default credentials:
-   - **Username**: \`root\`
-   - **Password**: \`root123\`
-4. Use the dock to open the Terminal, Settings, or Home Folder!
-
-## 💻 Simulated Commands
-
-The terminal supports a robust mock architecture. Commands won't touch your real hardware, making it a perfect environment for beginners to safely practice Linux syntax.
-
-### Available Mocks Include:
-- **General/Files**: \`ls\`, \`cd\`, \`pwd\`, \`cat\`, \`mkdir\`, \`touch\`, \`echo\`, \`rm\`, \`cp\`, \`mv\`, \`grep\`, \`find\`, \`tar\`, \`zip\`...
-- **System/Users**: \`sudo\`, \`whoami\`, \`passwd\`, \`useradd\`, \`chown\`, \`chmod\`...
-- **Processes**: \`ps\`, \`top\`, \`htop\`, \`kill\`, \`free\`...
-- **Networking**: \`ping\`, \`ifconfig\`, \`nmap\`, \`curl\`, \`wget\`, \`netstat\`...
-*(Note: Use the 'help' command or the UI Book icon to see the full list of references)*
-
-## 🛠️ Technology Stack
-
-- **HTML5:** Semantic architecture for window scaffolding.
-- **CSS3:** Flexbox, Grid, CSS Variables, and keyframe animations to replicate the glossy Ubuntu UI.
-- **Vanilla JavaScript (ES6+):** Complete DOM manipulation, state management (No React/Vue overhead). SVG icons utilized for all visual polish.
+A sleek, simulated web terminal and desktop environment built with Next.js, React, and TypeScript. UbuntuLite brings a robust, interactive Linux-like interface directly into your browser, allowing for realistic mock terminal operations, file management, and immersive desktop applications. Designed with performance and aesthetics in mind.
 
 ---
 
-&copy; 2026 UbuntuLite. All rights reserved. This project is a mockup experiment intended for educational and practicing purposes. Feel free to modify, expand the commands dictionary, and create your own mini-OS!
+## 🚀 Features
+
+*   **Draggable Window System:** Immersive, multi-window environment with draggable headers. Experience simulated context menus, multi-tasking, minimizing/maximizing, and z-index ordering.
+*   **Fully Functional Terminal Emulator:** Support for 20+ realistic mock commands such as `ls`, `cd`, `cat`, `mkdir`, `top`, `ping`, and even `apt` installation mockups, complete with functional visual outputs.
+*   **Interactive Desktop Apps:**
+    *   📁 **Folder Explorer:** Real-time mock file system navigation with a context menu to copy, paste, rename, and delete virtual files.
+    *   📝 **Text Editor:** Create and edit files within the virtual file system. 
+    *   ⚙️ **Settings App:** Dynamically change desktop backgrounds, terminal user profiles, and more.
+    *   🎮 **Tic-Tac-Toe Neon:** Computer VS User gameplay with a glowing UI.
+    *   🧮 **Calculator:** A fully functional desktop calcuator.
+*   **Persistent Virtual File System:** Built using `localStorage` to keep your created files and directories intact between page reloads, providing a persistent and stateful experience.
+*   **Aesthetic Design:** Complete with professional typography, drop shadows, slick hover animations, and a system core widget.
+
+## 🛠️ Built With
+
+*   **Framework:** [Next.js](https://nextjs.org/) (App Router format)
+*   **Library:** React
+*   **Language:** TypeScript
+*   **Styling:** Custom Vanilla CSS (`terminal.css`) & inline styles
+
+## 📦 Getting Started
+
+### Prerequisites
+
+Ensure you have **Node.js** installed globally on your machine. 
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository_url>
+   cd college_offline_test
+   ```
+
+2. Install the necessary dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:3000`
+
+## 💼 Copyright
+
+&copy; **2026 UbuntuLite**
+Developed and maintaned by **Jawaan**.
+
+*All simulated file systems, mock apps, and tools are purely visual and client-side logic for demonstration and practice purposes. None of the included apps modify the real host system files.*
