@@ -442,6 +442,8 @@ export default function Desktop() {
                 }}>
                     UbuntuLite 2026 &copy; Jawaan
                 </div>
+
+                <FeedbackWidget />
             </div>
         </div>
     );

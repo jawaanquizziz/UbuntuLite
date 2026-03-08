@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { ref, onValue, push, serverTimestamp, query, limitToLast } from "firebase/database";
+import { db } from "@/lib/firebase";
 
 interface FeedbackInfo {
     id: number;
@@ -11,25 +13,60 @@ interface FeedbackInfo {
 
 export default function FeedbackWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    // Unique message instead of duplicated ones
-    const [feedbacks, setFeedbacks] = useState<FeedbackInfo[]>([
-        { id: 1, name: "System", message: "Welcome to this OS! Drop us a quick note.", time: "Just now" }
-    ]);
+    const [feedbacks, setFeedbacks] = useState<FeedbackInfo[]>([]);
     const [newMessage, setNewMessage] = useState("");
+    const [userName, setUserName] = useState(() => {
+        // Simple random name generator for anon users
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem("ubt_feedback_name");
+            if (stored) return stored;
+            const newName = `Guest_${Math.floor(Math.random() * 10000)}`;
+            localStorage.setItem("ubt_feedback_name", newName);
+            return newName;
+        }
+        return "Guest";
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        // Fetch last 50 messages from Firebase Realtime DB
+        const feedbackRef = query(ref(db, 'feedbacks'), limitToLast(50));
+        const unsubscribe = onValue(feedbackRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const parsedFeedbacks: FeedbackInfo[] = Object.keys(data).map(key => ({
+                    id: key as any, // Firebase uses string keys, but we type it nicely
+                    name: data[key].name,
+                    message: data[key].message,
+                    time: data[key].timestamp
+                        ? new Date(data[key].timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : "Just now"
+                }));
+                // Realtime DB doesn't guarantee order of objects natively, so sort them manually
+                setFeedbacks(parsedFeedbacks.sort((a: any, b: any) => data[a.id]?.timestamp - data[b.id]?.timestamp));
+            } else {
+                setFeedbacks([{ id: 1, name: "System", message: "Be the first to leave feedback!", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        const newFeedback: FeedbackInfo = {
-            id: Date.now(),
-            name: "You",
-            message: newMessage,
-            time: "Just now"
-        };
+        const msg = newMessage;
+        setNewMessage(""); // Optimistic clear
 
-        setFeedbacks([...feedbacks, newFeedback]);
-        setNewMessage("");
+        try {
+            await push(ref(db, 'feedbacks'), {
+                name: userName,
+                message: msg,
+                timestamp: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Failed to push feedback to Firebase:", error);
+        }
     };
 
     return (
@@ -76,17 +113,17 @@ export default function FeedbackWidget() {
                     <div style={{ flex: 1, padding: "15px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
                         {feedbacks.map((fb) => (
                             <div key={fb.id} style={{
-                                alignSelf: fb.name === "You" ? "flex-end" : "flex-start",
-                                background: fb.name === "You" ? "linear-gradient(135deg, #ff007f, #7f00ff)" : "rgba(255,255,255,0.1)",
+                                alignSelf: fb.name === userName ? "flex-end" : "flex-start",
+                                background: fb.name === userName ? "linear-gradient(135deg, #ff007f, #7f00ff)" : "rgba(255,255,255,0.1)",
                                 color: "white",
                                 padding: "10px 14px",
-                                borderRadius: fb.name === "You" ? "18px 18px 4px 18px" : "18px 18px 18px 4px", // Circular/bubble corners
+                                borderRadius: fb.name === userName ? "18px 18px 4px 18px" : "18px 18px 18px 4px", // Circular/bubble corners
                                 maxWidth: "85%",
                                 fontSize: "13px",
                                 lineHeight: "1.4",
                                 boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
                             }}>
-                                {fb.name !== "You" && <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", marginBottom: "4px", fontWeight: 600 }}>{fb.name}</div>}
+                                {fb.name !== userName && <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", marginBottom: "4px", fontWeight: 600 }}>{fb.name}</div>}
                                 <div>{fb.message}</div>
                                 <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", marginTop: "4px", textAlign: "right" }}>{fb.time}</div>
                             </div>
