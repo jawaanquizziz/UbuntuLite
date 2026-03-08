@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ref, onValue, push, serverTimestamp, query, limitToLast } from "firebase/database";
-import { db } from "@/lib/firebase";
 
 interface FeedbackInfo {
-    id: number;
+    id: string;
     name: string;
     message: string;
+    rating: number;
     time: string;
 }
 
@@ -15,58 +14,98 @@ export default function FeedbackWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [feedbacks, setFeedbacks] = useState<FeedbackInfo[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const [userName, setUserName] = useState(() => {
-        // Simple random name generator for anon users
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem("ubt_feedback_name");
-            if (stored) return stored;
-            const newName = `Guest_${Math.floor(Math.random() * 10000)}`;
-            localStorage.setItem("ubt_feedback_name", newName);
-            return newName;
-        }
-        return "Guest";
-    });
+    const [rating, setRating] = useState(5);
+    const [userNameInput, setUserNameInput] = useState("");
+    const [userName, setUserName] = useState("");
 
     useEffect(() => {
-        // Fetch last 50 messages from Firebase Realtime DB
-        const feedbackRef = query(ref(db, 'feedbacks'), limitToLast(50));
-        const unsubscribe = onValue(feedbackRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                const parsedFeedbacks: FeedbackInfo[] = Object.keys(data).map(key => ({
-                    id: key as any, // Firebase uses string keys, but we type it nicely
-                    name: data[key].name,
-                    message: data[key].message,
-                    time: data[key].timestamp
-                        ? new Date(data[key].timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : "Just now"
-                }));
-                // Realtime DB doesn't guarantee order of objects natively, so sort them manually
-                setFeedbacks(parsedFeedbacks.sort((a: any, b: any) => data[a.id]?.timestamp - data[b.id]?.timestamp));
-            } else {
-                setFeedbacks([{ id: 1, name: "System", message: "Be the first to leave feedback!", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem("ubt_feedback_name");
+            if (stored && !stored.startsWith("Guest_")) {
+                setUserName(stored);
             }
-        });
-
-        return () => unsubscribe();
+        }
     }, []);
+
+    const fetchFeedbacks = async () => {
+        try {
+            const res = await fetch("/api/feedbacks");
+            if (res.ok) {
+                const data = await res.json();
+                setFeedbacks(data.length ? data : [{
+                    id: "1", name: "System", message: "No reviews yet. Be the first to leave one!", rating: 5, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }]);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchFeedbacks();
+            const interval = setInterval(fetchFeedbacks, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [isOpen]);
+
+    const handleSetName = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!userNameInput.trim()) return;
+        setUserName(userNameInput.trim());
+        localStorage.setItem("ubt_feedback_name", userNameInput.trim());
+    };
+
+    const handleSignOut = () => {
+        setUserName("");
+        localStorage.removeItem("ubt_feedback_name");
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
+        if (!newMessage.trim() || !userName) return;
+
+        // Check for URLs, domains, or IP addresses
+        const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|(\b[a-zA-Z0-9-]+\.(com|org|net|io|edu|gov|uk|co|us)\b)/i;
+        if (urlRegex.test(newMessage)) {
+            alert("Adding links is not allowed. Please enter text only.");
+            return;
+        }
 
         const msg = newMessage;
+        const currentRating = rating;
+
         setNewMessage(""); // Optimistic clear
+        setRating(5);
+
+        const newFeedback: FeedbackInfo = {
+            id: Date.now().toString() + Math.random().toString().slice(2, 6),
+            name: userName,
+            message: msg,
+            rating: currentRating,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        setFeedbacks(prev => {
+            const updated = prev[0]?.id === "1" ? [] : [...prev];
+            return [...updated, newFeedback].slice(-100);
+        });
 
         try {
-            await push(ref(db, 'feedbacks'), {
-                name: userName,
-                message: msg,
-                timestamp: serverTimestamp()
+            await fetch("/api/feedbacks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: userName, message: msg, rating: currentRating })
             });
-        } catch (error) {
-            console.error("Failed to push feedback to Firebase:", error);
+            fetchFeedbacks();
+        } catch (err) {
+            console.error("Failed to post feedback", err);
         }
+    };
+
+    const renderStars = (count: number) => {
+        if (count === undefined) return null;
+        return <span style={{ color: "#FFD700" }}>{"★".repeat(count)}{"☆".repeat(5 - count)}</span>;
     };
 
     return (
@@ -74,16 +113,15 @@ export default function FeedbackWidget() {
             position: "absolute",
             bottom: "30px",
             right: "30px",
-            zIndex: 9999, // Float above applications
+            zIndex: 9999,
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-end"
         }}>
-            {/* Pop-up feedback pane */}
             {isOpen && (
                 <div style={{
-                    width: "320px",
-                    height: "400px",
+                    width: "350px",
+                    height: "450px",
                     background: "rgba(20, 20, 25, 0.85)",
                     backdropFilter: "blur(15px)",
                     borderRadius: "20px",
@@ -106,73 +144,156 @@ export default function FeedbackWidget() {
                         alignItems: "center",
                         borderBottom: "1px solid rgba(255,255,255,0.1)"
                     }}>
-                        <span>Feedback / Chat</span>
-                        <span onClick={() => setIsOpen(false)} style={{ cursor: "pointer", opacity: 0.8 }}>✕</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span>Reviews & Feedback</span>
+                            {userName && (
+                                <span
+                                    onClick={handleSignOut}
+                                    style={{ fontSize: "11px", fontWeight: "normal", background: "rgba(0,0,0,0.2)", padding: "3px 8px", borderRadius: "10px", cursor: "pointer", opacity: 0.8 }}
+                                    title="Change Name"
+                                >
+                                    {userName} ✎
+                                </span>
+                            )}
+                        </div>
+                        <span onClick={() => setIsOpen(false)} style={{ cursor: "pointer", opacity: 0.8, fontSize: "16px" }}>✕</span>
                     </div>
 
-                    <div style={{ flex: 1, padding: "15px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
-                        {feedbacks.map((fb) => (
-                            <div key={fb.id} style={{
-                                alignSelf: fb.name === userName ? "flex-end" : "flex-start",
-                                background: fb.name === userName ? "linear-gradient(135deg, #ff007f, #7f00ff)" : "rgba(255,255,255,0.1)",
-                                color: "white",
-                                padding: "10px 14px",
-                                borderRadius: fb.name === userName ? "18px 18px 4px 18px" : "18px 18px 18px 4px", // Circular/bubble corners
-                                maxWidth: "85%",
-                                fontSize: "13px",
-                                lineHeight: "1.4",
-                                boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
-                            }}>
-                                {fb.name !== userName && <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", marginBottom: "4px", fontWeight: 600 }}>{fb.name}</div>}
-                                <div>{fb.message}</div>
-                                <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", marginTop: "4px", textAlign: "right" }}>{fb.time}</div>
+                    {!userName ? (
+                        <div style={{ flex: 1, padding: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "15px" }}>
+                            <div style={{ color: "white", textAlign: "center", fontSize: "14px", lineHeight: "1.5" }}>
+                                Welcome to User Reviews! <br /> Please enter your name to post a review or message.
                             </div>
-                        ))}
-                    </div>
+                            <form onSubmit={handleSetName} style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                                <input
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    value={userNameInput}
+                                    onChange={e => setUserNameInput(e.target.value)}
+                                    style={{
+                                        background: "rgba(255,255,255,0.1)",
+                                        border: "1px solid rgba(255,255,255,0.15)",
+                                        borderRadius: "10px",
+                                        padding: "12px 14px",
+                                        color: "white",
+                                        fontSize: "14px",
+                                        outline: "none",
+                                        width: "100%"
+                                    }}
+                                />
+                                <button type="submit" style={{
+                                    background: "linear-gradient(135deg, #ff007f, #7f00ff)",
+                                    border: "none",
+                                    borderRadius: "10px",
+                                    padding: "12px",
+                                    color: "white",
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    transition: "opacity 0.2s",
+                                    opacity: userNameInput.trim() ? 1 : 0.5
+                                }}>
+                                    Continue
+                                </button>
+                            </form>
+                        </div>
+                    ) : (
+                        <>
+                            <div style={{ flex: 1, padding: "15px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
+                                {feedbacks.map((fb) => (
+                                    <div key={fb.id} style={{
+                                        alignSelf: fb.name === userName ? "flex-end" : "flex-start",
+                                        background: fb.name === userName ? "linear-gradient(135deg, #ff007f, #7f00ff)" : "rgba(255,255,255,0.1)",
+                                        color: "white",
+                                        padding: "12px 14px",
+                                        borderRadius: fb.name === userName ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                                        maxWidth: "90%",
+                                        fontSize: "13.5px",
+                                        lineHeight: "1.4",
+                                        boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
+                                    }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", alignItems: "center" }}>
+                                            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)", fontWeight: 700 }}>
+                                                {fb.name === userName ? "You" : fb.name}
+                                            </span>
+                                            {fb.rating !== undefined && (
+                                                <span style={{ fontSize: "12px", marginLeft: "8px" }}>
+                                                    {renderStars(fb.rating)}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div style={{ wordBreak: "break-word" }}>{fb.message}</div>
+                                        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: "6px" }}>
+                                            <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.6)", textAlign: "right" }}>{fb.time}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
 
-                    <form onSubmit={handleSubmit} style={{
-                        padding: "12px",
-                        borderTop: "1px solid rgba(255,255,255,0.1)",
-                        display: "flex",
-                        gap: "8px",
-                        background: "rgba(0,0,0,0.2)"
-                    }}>
-                        <input
-                            type="text"
-                            placeholder="Type something..."
-                            value={newMessage}
-                            onChange={e => setNewMessage(e.target.value)}
-                            style={{
-                                flex: 1,
-                                background: "rgba(255,255,255,0.1)",
-                                border: "1px solid rgba(255,255,255,0.15)",
-                                borderRadius: "20px",
-                                padding: "8px 14px",
-                                color: "white",
-                                fontSize: "13px",
-                                outline: "none"
-                            }}
-                        />
-                        <button type="submit" style={{
-                            background: "linear-gradient(135deg, #ff007f, #7f00ff)",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "36px",
-                            height: "36px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            opacity: newMessage ? 1 : 0.5,
-                            transition: "all 0.2s"
-                        }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" /></svg>
-                        </button>
-                    </form>
+                            <form onSubmit={handleSubmit} style={{
+                                padding: "12px",
+                                borderTop: "1px solid rgba(255,255,255,0.1)",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                                background: "rgba(0,0,0,0.2)"
+                            }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingLeft: "5px" }}>
+                                    <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>Your Rating:</span>
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                        {[1, 2, 3, 4, 5].map(star => (
+                                            <span
+                                                key={star}
+                                                onClick={() => setRating(star)}
+                                                style={{
+                                                    cursor: "pointer",
+                                                    fontSize: "18px",
+                                                    color: star <= rating ? "#FFD700" : "rgba(255,255,255,0.2)"
+                                                }}
+                                            >
+                                                ★
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Write your review or feedback..."
+                                        value={newMessage}
+                                        onChange={e => setNewMessage(e.target.value)}
+                                        style={{
+                                            flex: 1,
+                                            background: "rgba(255,255,255,0.1)",
+                                            border: "1px solid rgba(255,255,255,0.15)",
+                                            borderRadius: "20px",
+                                            padding: "10px 14px",
+                                            color: "white",
+                                            fontSize: "13px",
+                                            outline: "none"
+                                        }}
+                                    />
+                                    <button type="submit" style={{
+                                        background: "linear-gradient(135deg, #ff007f, #7f00ff)",
+                                        border: "none",
+                                        borderRadius: "50%",
+                                        width: "38px",
+                                        height: "38px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        cursor: "pointer",
+                                        opacity: newMessage.trim() ? 1 : 0.5,
+                                        transition: "all 0.2s"
+                                    }}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" /></svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </>
+                    )}
                 </div>
             )}
 
-            {/* Circular trigger in the bottom right */}
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
