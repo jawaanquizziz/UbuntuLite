@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-const dataFilePath = path.join(process.cwd(), 'data', 'feedbacks.json');
+const isProduction = process.env.NODE_ENV === 'production';
+const dataFilePath = isProduction
+    ? path.join('/tmp', 'feedbacks.json')
+    : path.join(process.cwd(), 'data', 'feedbacks.json');
 
 async function ensureDataFile() {
     try {
