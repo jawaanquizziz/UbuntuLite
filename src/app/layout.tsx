@@ -4,7 +4,7 @@ import './terminal.css';
 
 export const metadata: Metadata = {
   title: "UbuntuLite",
-  description: "Web Terminal Simulator",
+  description: "Made by JAWAAN",
 };
 
 export default function RootLayout({
@@ -15,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="icon" type="image/png" href="/ubuntulite.png" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Ubuntu+Mono:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased">

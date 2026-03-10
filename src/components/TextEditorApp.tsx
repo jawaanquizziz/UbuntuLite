@@ -17,7 +17,7 @@ export default function TextEditorApp({
     const [saveAsDir, setSaveAsDir] = useState("/root");
     const [saveAsName, setSaveAsName] = useState("untitled.txt");
 
-    const { position, handleMouseDown, isDragging } = useDraggable(isMaximized);
+    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
 
     useEffect(() => {
         if (filePath && fileContents[filePath] !== undefined) {
@@ -77,25 +77,35 @@ export default function TextEditorApp({
     const lineCount = content.split("\n").length;
 
     const windowStyle: React.CSSProperties = isMaximized
-        ? { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
+        ? { position: "absolute", top: 0, left: "68px", width: "calc(100% - 68px)", height: "100%", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
         : { position: "absolute", width: "680px", height: "480px", zIndex: zIndex || 10 };
 
     return (
         <div
-            className={`text-editor-window ${isMaximized ? "maximized" : ""}`}
+            className={`text-editor-window ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
-                ...windowStyle,
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
+                zIndex: zIndex || 10,
                 display: "flex",
                 flexDirection: "column",
                 background: "#1a1b26",
-                borderRadius: isMaximized ? 0 : "12px",
                 overflow: "hidden",
                 boxShadow: "0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)",
                 fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
                 animation: "editorOpen 0.18s cubic-bezier(0.2,0,0,1)",
-                ...(isMaximized ? {} : {
+                ...(isMaximized || isSnapped !== "none" ? {
+                    position: "absolute",
+                    top: 0,
+                    left: isSnapped === "right" ? "50%" : "68px",
+                    width: isSnapped !== "none" ? "calc(50% - 68px)" : "calc(100% - 68px)",
+                    height: "100%",
+                    borderRadius: 0,
+                    transform: "none",
+                } : {
+                    position: "absolute",
+                    top: "auto", left: "auto",
+                    borderRadius: "12px",
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     transition: isDragging ? "none" : "transform 0.1s"
                 })

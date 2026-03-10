@@ -39,7 +39,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
     const [showProps, setShowProps] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const { position, handleMouseDown, isDragging } = useDraggable(isMaximized);
+    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
 
     // Close context menu on outside click
     useEffect(() => {
@@ -217,15 +217,25 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
         { label: "var/log", path: "/var/log", emoji: "📋" },
     ];
 
-    const windowStyle: React.CSSProperties = isMaximized
-        ? { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: 0, border: "none", transform: "none", zIndex: zIndex || 10 }
+    const windowStyle: React.CSSProperties = (isMaximized || isSnapped !== "none")
+        ? {
+            position: "absolute",
+            top: 0,
+            left: isSnapped === "right" ? "50%" : "68px",
+            width: isSnapped !== "none" ? "calc(50% - 68px)" : "calc(100% - 68px)",
+            height: "100%",
+            transform: "none",
+            zIndex: zIndex || 10
+        }
         : {
             position: "absolute",
             width: "720px",
             height: "480px",
             zIndex: zIndex || 10,
             transform: `translate(${position.x}px, ${position.y}px)`,
-            transition: isDragging ? "none" : "transform 0.1s"
+            transition: isDragging ? "none" : "transform 0.1s",
+            opacity: isMinimized ? 0 : 1,
+            pointerEvents: isMinimized ? "none" : "auto"
         };
 
     const menuItemStyle: React.CSSProperties = { padding: "7px 16px", fontSize: "13px", color: "rgba(255,255,255,0.85)", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap" };

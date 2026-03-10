@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useDraggable } from "@/hooks/useDraggable";
 
 export default function CalculatorApp({ onClose, onMinimize, onMaximize, isMaximized, isMinimized, zIndex, onFocus }: any) {
-    const { position, handleMouseDown, isDragging } = useDraggable(isMaximized || false);
+    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
     const [display, setDisplay] = useState("0");
     const [equation, setEquation] = useState("");
 
@@ -38,33 +38,27 @@ export default function CalculatorApp({ onClose, onMinimize, onMaximize, isMaxim
         setEquation("");
     };
 
-    const windowStyle: React.CSSProperties = isMaximized
-        ? { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
-        : {
-            position: "absolute",
-            width: "320px",
-            height: "480px",
-            zIndex: zIndex || 10,
-            top: "20%",
-            left: "30%",
-            transform: `translate(${position.x}px, ${position.y}px)`,
-            transition: isDragging ? "none" : "transform 0.1s"
-        };
-
     return (
         <div
-            className={`settings-window dark-mode ${isMaximized ? "maximized" : ""}`}
+            className={`settings-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
-                ...windowStyle,
+                ...((isMaximized || isSnapped !== "none")
+                    ? { position: "absolute", top: 0, transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
+                    : {
+                        position: "absolute",
+                        top: "auto", left: "auto",
+                        width: "320px", height: "450px",
+                        transform: `translate(${position.x}px, ${position.y}px)`,
+                        zIndex: zIndex || 10,
+                        transition: isDragging ? "none" : "transform 0.1s"
+                    }),
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "#222",
                 boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-                overflow: "hidden",
-                border: isMaximized ? "none" : "1px solid #444",
-                borderRadius: isMaximized ? "0" : "8px"
+                display: "flex", flexDirection: "column", overflow: "hidden",
+                border: (isMaximized || isSnapped !== "none") ? "none" : "1px solid #444",
+                borderRadius: (isMaximized || isSnapped !== "none") ? "0" : "8px",
+                background: "#222"
             }}
             onClick={onFocus}
         >

@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { useDraggable } from "@/hooks/useDraggable";
 
-export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximized, isMinimized, zIndex, onFocus, currentBg, onBgChange, terminalUser, setTerminalUser, terminalHost, setTerminalHost }: any) {
+export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximized, isMinimized, zIndex, onFocus, currentBg, onBgChange, terminalUser, setTerminalUser, terminalHost, setTerminalHost, terminalTextColor, setTerminalTextColor }: any) {
     const [activeTab, setActiveTab] = useState("appearance");
-    const { position, handleMouseDown, isDragging } = useDraggable(isMaximized);
+    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized);
 
     const backgrounds = [
         { id: "bg1", name: "Ubuntu Default", value: "linear-gradient(135deg, #dd4814, #2c001e)" },
@@ -13,8 +13,13 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
         { id: "bg3", name: "Purple Rain", value: "linear-gradient(135deg, #4b1248, #f0c27b)" },
         { id: "bg4", name: "Mint Leaf", value: "linear-gradient(135deg, #00b09b, #96c93d)" },
         { id: "bg5", name: "Deep Space", value: "#111111" },
-        { id: "bg6", name: "3D Matrix", value: "ANIMATED_MATRIX" },
-        { id: "bg7", name: "3D Particles", value: "ANIMATED_PARTICLES" }
+        { id: "bg6", name: "⚡ Matrix Rain", value: "ANIMATED_MATRIX" },
+        { id: "bg7", name: "✨ Particles", value: "ANIMATED_PARTICLES" },
+        { id: "bg8", name: "🌌 Aurora Borealis", value: "ANIMATED_AURORA" },
+        { id: "bg9", name: "🚀 Starfield Warp", value: "ANIMATED_STARFIELD" },
+        { id: "bg10", name: "🔴 Lava Lamp", value: "ANIMATED_LAVA" },
+        { id: "bg11", name: "🟣 Cyberpunk Rain", value: "ANIMATED_CYBERPUNK" },
+        { id: "bg12", name: "🌊 Geometric Waves", value: "ANIMATED_WAVES" },
     ];
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +37,7 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
 
     return (
         <div
-            className={`settings - window dark - mode ${isMaximized ? "maximized" : ""} `}
+            className={`settings-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
@@ -40,7 +45,7 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
                 display: "flex",
                 flexDirection: "column",
                 position: "absolute",
-                width: isMaximized ? "100%" : "600px",
+                width: isMaximized ? "calc(100% - 68px)" : isSnapped !== 'none' ? "50%" : "600px",
                 height: isMaximized ? "100%" : "450px",
                 backgroundColor: "#222",
                 borderRadius: isMaximized ? "0" : "8px",
@@ -48,8 +53,8 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
                 overflow: "hidden",
                 border: "1px solid #444",
                 top: isMaximized ? "0" : "auto",
-                left: isMaximized ? "0" : "auto",
-                transform: isMaximized ? "none" : `translate(${position.x}px, ${position.y}px)`,
+                left: isMaximized ? "68px" : "auto",
+                transform: isMaximized || isSnapped !== 'none' ? "none" : `translate(${position.x}px, ${position.y}px)`,
                 transition: isDragging ? "none" : "transform 0.1s"
             }}
             onClick={onFocus}
@@ -173,10 +178,71 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
                                         placeholder="e.g. ubuntu"
                                     />
                                 </div>
+                                <div>
+                                    <label style={{ display: "block", marginBottom: "5px", color: "#ccc" }}>Color Palette</label>
+                                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+                                        {[
+                                            { label: "White", value: "#ffffff" },
+                                            { label: "Green", value: "#4ade80" },
+                                            { label: "Blue", value: "#60a5fa" },
+                                            { label: "Orange", value: "#fb923c" },
+                                        ].map(color => (
+                                            <div
+                                                key={color.value}
+                                                onClick={() => setTerminalTextColor(color.value)}
+                                                style={{
+                                                    width: "36px",
+                                                    height: "40px",
+                                                    backgroundColor: color.value,
+                                                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                                                    cursor: "pointer",
+                                                    opacity: terminalTextColor === color.value ? 1 : 0.6,
+                                                    transform: terminalTextColor === color.value ? "scale(1.1)" : "scale(1)",
+                                                    transition: "all 0.2s ease"
+                                                }}
+                                                title={color.label}
+                                            />
+                                        ))}
+
+                                        <div
+                                            style={{
+                                                position: "relative",
+                                                width: "36px",
+                                                height: "40px",
+                                                marginLeft: "5px",
+                                                transform: (!["#ffffff", "#4ade80", "#60a5fa", "#fb923c"].includes(terminalTextColor)) ? "scale(1.1)" : "scale(1)",
+                                                opacity: (!["#ffffff", "#4ade80", "#60a5fa", "#fb923c"].includes(terminalTextColor)) ? 1 : 0.6,
+                                                transition: "all 0.2s ease"
+                                            }}
+                                            title="Custom Color"
+                                        >
+                                            <div style={{
+                                                position: "absolute",
+                                                inset: 0,
+                                                background: "conic-gradient(from 90deg, red, yellow, lime, aqua, blue, magenta, red)",
+                                                clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                                                pointerEvents: "none"
+                                            }} />
+                                            <input
+                                                type="color"
+                                                value={terminalTextColor}
+                                                onChange={(e) => setTerminalTextColor(e.target.value)}
+                                                style={{
+                                                    opacity: 0,
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    cursor: "pointer",
+                                                    position: "absolute",
+                                                    zIndex: 2
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div style={{ backgroundColor: "#111", padding: "15px", borderRadius: "6px", border: "1px solid #444" }}>
                                 <p style={{ margin: "0 0 10px 0", color: "#ccc", fontSize: "0.9rem" }}>Preview:</p>
-                                <span style={{ color: "#4ade80", fontWeight: "bold" }}>{terminalUser}@{terminalHost}</span>:<span style={{ color: "#60a5fa", fontWeight: "bold" }}>~</span>$
+                                <span style={{ color: "#4ade80", fontWeight: "bold" }}>{terminalUser}@{terminalHost}</span>:<span style={{ color: "#60a5fa", fontWeight: "bold" }}>~</span>$ <span style={{ color: terminalTextColor }}>echo "Hello World"</span>
                             </div>
                         </div>
                     )}

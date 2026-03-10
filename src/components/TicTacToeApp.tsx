@@ -14,7 +14,7 @@ interface AppProps {
 }
 
 export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximized, isMinimized, zIndex, onFocus }: AppProps) {
-    const { position, handleMouseDown, isDragging } = useDraggable(isMaximized || false);
+    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
     const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
     const [isXNext, setIsXNext] = useState(true);
     const [isComputerThinking, setIsComputerThinking] = useState(false);
@@ -82,33 +82,27 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
             ? "Draw!"
             : (isXNext ? "Your Turn (X)" : "Computer's Turn (O)...");
 
-    const windowStyle: React.CSSProperties = isMaximized
-        ? { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
-        : {
-            position: "absolute",
-            width: "400px",
-            height: "520px",
-            zIndex: zIndex || 10,
-            top: "15%",
-            left: "55%",
-            transform: `translate(${position.x}px, ${position.y}px)`,
-            transition: isDragging ? "none" : "transform 0.1s"
-        };
-
     return (
         <div
-            className={`settings-window dark-mode ${isMaximized ? "maximized" : ""}`}
+            className={`tictactoe-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
-                ...windowStyle,
+                ...((isMaximized || isSnapped !== "none")
+                    ? { position: "absolute", top: 0, transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
+                    : {
+                        position: "absolute",
+                        top: "15%", left: "55%",
+                        width: "400px", height: "520px",
+                        transform: `translate(${position.x}px, ${position.y}px)`,
+                        zIndex: zIndex || 10,
+                        transition: isDragging ? "none" : "transform 0.1s"
+                    }),
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
-                display: "flex",
-                flexDirection: "column",
-                background: "linear-gradient(135deg, #1f1c2c, #928DAB)",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(146, 141, 171, 0.2)",
-                overflow: "hidden",
-                border: isMaximized ? "none" : "1px solid rgba(255,255,255,0.1)",
-                borderRadius: isMaximized ? "0" : "12px",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+                display: "flex", flexDirection: "column", overflow: "hidden",
+                border: (isMaximized || isSnapped !== "none") ? "none" : "1px solid rgba(255,255,255,0.1)",
+                borderRadius: (isMaximized || isSnapped !== "none") ? "0" : "12px",
+                background: "linear-gradient(135deg, #1e1e24, #121214)",
                 fontFamily: "'Inter', sans-serif"
             }}
             onClick={onFocus}
@@ -211,6 +205,6 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
                     Restart Game
                 </button>
             </div>
-        </div>
+        </div >
     );
 }
