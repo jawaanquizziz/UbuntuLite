@@ -105,6 +105,7 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
     const [isLoaded, setIsLoaded] = useState(false);
     const [isBooting, setIsBooting] = useState(true);
     const [desktopCtx, setDesktopCtx] = useState<{ x: number, y: number } | null>(null);
+    const [showDesktopIcons, setShowDesktopIcons] = useState(true);
 
     React.useEffect(() => {
         const closeCtx = () => setDesktopCtx(null);
@@ -118,10 +119,12 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
         const savedUser = localStorage.getItem("ubuntu_terminalUser");
         const savedHost = localStorage.getItem("ubuntu_terminalHost");
         const savedColor = localStorage.getItem("ubuntu_terminalTextColor");
+        const savedShowIcons = localStorage.getItem("ubuntu_showDesktopIcons");
         if (savedBg) setDesktopBg(savedBg);
         if (savedUser) setTerminalUser(savedUser);
         if (savedHost) setTerminalHost(savedHost);
         if (savedColor) setTerminalTextColor(savedColor);
+        if (savedShowIcons !== null) setShowDesktopIcons(savedShowIcons === "true");
         setIsLoaded(true);
     }, []);
 
@@ -131,8 +134,36 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
             localStorage.setItem("ubuntu_terminalUser", terminalUser);
             localStorage.setItem("ubuntu_terminalHost", terminalHost);
             localStorage.setItem("ubuntu_terminalTextColor", terminalTextColor);
+            localStorage.setItem("ubuntu_showDesktopIcons", String(showDesktopIcons));
         }
-    }, [desktopBg, terminalUser, terminalHost, terminalTextColor, isLoaded]);
+    }, [desktopBg, terminalUser, terminalHost, terminalTextColor, showDesktopIcons, isLoaded]);
+
+    const handleDesktopContextAction = (action: "open-terminal" | "open-home" | "toggle-icons" | "open-settings") => {
+        setDesktopCtx(null);
+        switch (action) {
+            case "open-terminal":
+                if (!terminalState.open || terminalState.minimized) {
+                    setTerminalState(s => ({ ...s, open: true, minimized: false, zIndex: 20 }));
+                    bringToFront("terminal");
+                }
+                break;
+            case "open-home":
+                if (!folderState.open || folderState.minimized) {
+                    setFolderState(s => ({ ...s, open: true, minimized: false, zIndex: 20 }));
+                    bringToFront("folder");
+                }
+                break;
+            case "toggle-icons":
+                setShowDesktopIcons(prev => !prev);
+                break;
+            case "open-settings":
+                if (!settingsState.open || settingsState.minimized) {
+                    setSettingsState(s => ({ ...s, open: true, minimized: false, zIndex: 20 }));
+                    bringToFront("settings");
+                }
+                break;
+        }
+    };
 
     const bringToFront = (app: 'terminal' | 'folder' | 'settings' | 'editor' | 'tictactoe' | 'calculator') => {
         const reset = { terminal: 10, folder: 10, settings: 10, editor: 10, tictactoe: 10, calculator: 10 };
@@ -243,10 +274,10 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
             {/* Boot Screen */}
             {isBooting && <BootScreen onComplete={() => setIsBooting(false)} />}
 
-            {/* â”€â”€ Top Bar â”€â”€ */}
+            {/* ── Top Bar ── */}
             <TopBar />
 
-            {/* â”€â”€ Workspace (everything below the bar) â”€â”€ */}
+            {/* ── Workspace (everything below the bar) ── */}
             <div
                 className="desktop-view"
                 id="desktop-view"
@@ -267,6 +298,96 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                 }}
             >
                 {isAnimated && <AnimatedBackground type={desktopBg} />}
+
+                {desktopCtx && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: desktopCtx.y,
+                            left: desktopCtx.x,
+                            zIndex: 1000,
+                            backgroundColor: "rgba(32,32,36,0.96)",
+                            borderRadius: "6px",
+                            padding: "6px 0",
+                            boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            minWidth: "200px",
+                            backdropFilter: "blur(18px)",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => handleDesktopContextAction("open-terminal")}
+                            style={{
+                                width: "100%",
+                                padding: "6px 14px",
+                                background: "none",
+                                border: "none",
+                                color: "#f5f5f5",
+                                textAlign: "left",
+                                fontSize: "13px",
+                                cursor: "pointer",
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            Open Terminal Here
+                        </button>
+                        <button
+                            onClick={() => handleDesktopContextAction("open-home")}
+                            style={{
+                                width: "100%",
+                                padding: "6px 14px",
+                                background: "none",
+                                border: "none",
+                                color: "#f5f5f5",
+                                textAlign: "left",
+                                fontSize: "13px",
+                                cursor: "pointer",
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            Open Home Folder
+                        </button>
+                        <div
+                            style={{
+                                margin: "4px 0",
+                                borderTop: "1px solid rgba(255,255,255,0.08)",
+                            }}
+                        />
+                        <button
+                            onClick={() => handleDesktopContextAction("toggle-icons")}
+                            style={{
+                                width: "100%",
+                                padding: "6px 14px",
+                                background: "none",
+                                border: "none",
+                                color: "#f5f5f5",
+                                textAlign: "left",
+                                fontSize: "13px",
+                                cursor: "pointer",
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            {showDesktopIcons ? "Hide Desktop Icons" : "Show Desktop Icons"}
+                        </button>
+                        <button
+                            onClick={() => handleDesktopContextAction("open-settings")}
+                            style={{
+                                width: "100%",
+                                padding: "6px 14px",
+                                background: "none",
+                                border: "none",
+                                color: "#f5f5f5",
+                                textAlign: "left",
+                                fontSize: "13px",
+                                cursor: "pointer",
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            Desktop Settings (Properties)
+                        </button>
+                    </div>
+                )}
 
                 <div className="desktop-dock" style={{ zIndex: 50 }}>
                     <div className="dock-icon" id="dock-home" title="Home Folder" onClick={toggleFolder} style={{ position: "relative" }}>
@@ -312,6 +433,7 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                     </div>
                 </div>
 
+                {showDesktopIcons && (
                 <div className="desktop-icons" style={{ zIndex: 1 }}>
                     <div className="desktop-icon" id="desktop-home-icon" onClick={toggleFolder} style={{ cursor: 'pointer' }}>
                         <svg className="file-icon folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
@@ -353,6 +475,7 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                         <span>Settings</span>
                     </div>
                 </div>
+                )}
 
                 {terminalState.open && (
                     <TerminalApp
