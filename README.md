@@ -1,6 +1,6 @@
 # UbuntuLite 2026
 
-![UbuntuLite Desktop Preview](./public/screenshots/setup_photo.png)
+
 
 A sleek, simulated web terminal and desktop environment built with Next.js, React, and TypeScript. UbuntuLite brings a robust, interactive Linux-like interface directly into your browser, allowing for realistic mock terminal operations, file management, and immersive desktop applications. Designed with performance and aesthetics in mind.
 
