@@ -107,7 +107,29 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
     const openCtxMenu = (e: React.MouseEvent, item: string | null, isDir: boolean) => {
         e.preventDefault();
         e.stopPropagation();
-        setCtxMenu({ x: e.clientX, y: e.clientY, item, isDir });
+
+        let x = e.clientX;
+        let y = e.clientY;
+
+        // Estimated menu dimensions
+        const menuWidth = 200;
+        const menuHeight = 320;
+
+        // Check horizontal overflow
+        if (x + menuWidth > window.innerWidth) {
+            x = x - menuWidth;
+        }
+
+        // Check vertical overflow
+        if (y + menuHeight > window.innerHeight) {
+            y = y - menuHeight;
+        }
+
+        // Ensure it doesn't go off the top/left
+        x = Math.max(5, x);
+        y = Math.max(5, y);
+
+        setCtxMenu({ x, y, item, isDir });
         if (item) setSelectedItem(item);
     };
 
