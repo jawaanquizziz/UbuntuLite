@@ -25,7 +25,18 @@ type CtxMenu = { x: number; y: number; item: string | null; isDir: boolean } | n
 type Clipboard = { action: "copy" | "cut"; path: string; name: string } | null;
 type RenameState = { path: string; value: string } | null;
 
-export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaximized, isMinimized, zIndex, onFocus, onOpenFile }: any) {
+interface FolderExplorerProps {
+    onClose: () => void;
+    onMinimize: () => void;
+    onMaximize: () => void;
+    isMaximized: boolean;
+    isMinimized: boolean;
+    zIndex: number;
+    onFocus: () => void;
+    onOpenFile?: (path: string) => void;
+}
+
+export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaximized, isMinimized, zIndex, onFocus, onOpenFile }: FolderExplorerProps) {
     const [currentPath, setCurrentPath] = useState("/root");
     const [history, setHistory] = useState<string[]>(["/root"]);
     const [historyIndex, setHistoryIndex] = useState(0);
