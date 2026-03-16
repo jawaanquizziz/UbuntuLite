@@ -17,7 +17,6 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
     const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
     const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
     const [isXNext, setIsXNext] = useState(true);
-    const [isComputerThinking, setIsComputerThinking] = useState(false);
 
     const checkWinner = (squares: (string | null)[]) => {
         const lines = [
@@ -54,7 +53,6 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
 
     React.useEffect(() => {
         if (!isXNext && !checkWinner(board) && board.includes(null)) {
-            setIsComputerThinking(true);
             const timer = setTimeout(() => {
                 const aiMove = getBestMove(board);
                 if (aiMove !== -1) {
@@ -63,7 +61,6 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
                     setBoard(newBoard);
                     setIsXNext(true);
                 }
-                setIsComputerThinking(false);
             }, 500 + Math.random() * 500); // 0.5 - 1s delay
             return () => clearTimeout(timer);
         }
@@ -87,11 +84,11 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
             className={`tictactoe-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
                 ...((isMaximized || isSnapped !== "none")
-                    ? { position: "absolute", top: 0, transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
+                    ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
                     : {
                         position: "absolute",
-                        top: "15%", left: "55%",
-                        width: "400px", height: "520px",
+                        top: "15%", left: "auto",
+                        width: "min(400px, 95%)", height: "min(520px, 85%)",
                         transform: `translate(${position.x}px, ${position.y}px)`,
                         zIndex: zIndex || 10,
                         transition: isDragging ? "none" : "transform 0.1s"

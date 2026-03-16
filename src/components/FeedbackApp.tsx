@@ -111,17 +111,18 @@ export default function FeedbackWidget() {
     return (
         <div style={{
             position: "absolute",
-            bottom: "30px",
-            right: "30px",
+            bottom: "calc(var(--dock-bottom, 0px) + 20px)",
+            right: "20px",
             zIndex: 9999,
             display: "flex",
             flexDirection: "column",
-            alignItems: "flex-end"
+            alignItems: "flex-end",
+            maxWidth: "calc(100vw - 40px)"
         }}>
             {isOpen && (
                 <div style={{
-                    width: "350px",
-                    height: "450px",
+                    width: "min(350px, 100vw - 40px)",
+                    height: "min(450px, 70vh)",
                     background: "rgba(20, 20, 25, 0.85)",
                     backdropFilter: "blur(15px)",
                     borderRadius: "20px",

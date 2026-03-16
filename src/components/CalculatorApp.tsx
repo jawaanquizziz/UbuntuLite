@@ -43,11 +43,11 @@ export default function CalculatorApp({ onClose, onMinimize, onMaximize, isMaxim
             className={`settings-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
                 ...((isMaximized || isSnapped !== "none")
-                    ? { position: "absolute", top: 0, transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
+                    ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
                     : {
                         position: "absolute",
                         top: "auto", left: "auto",
-                        width: "320px", height: "450px",
+                        width: "min(320px, 90%)", height: "min(450px, 80%)",
                         transform: `translate(${position.x}px, ${position.y}px)`,
                         zIndex: zIndex || 10,
                         transition: isDragging ? "none" : "transform 0.1s"

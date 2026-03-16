@@ -59,7 +59,7 @@ export default function BootScreen({ onComplete }: { onComplete: () => void }) {
             backgroundColor: "#000",
             color: "#ccc",
             fontFamily: "monospace",
-            fontSize: "14px",
+            fontSize: "clamp(12px, 3vw, 14px)",
             zIndex: 999999,
             padding: "20px",
             boxSizing: "border-box",

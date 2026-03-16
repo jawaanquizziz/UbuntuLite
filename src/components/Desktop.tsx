@@ -37,7 +37,7 @@ function TopBar() {
             backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
             borderBottom: "1px solid rgba(255,255,255,0.06)",
             display: "flex", alignItems: "center",
-            padding: "0 14px",
+            padding: "0 8px",
             fontFamily: "'Inter', 'Ubuntu', 'Segoe UI', sans-serif",
             fontSize: "13px", color: "rgba(255,255,255,0.92)",
             userSelect: "none", zIndex: 200,
@@ -46,7 +46,7 @@ function TopBar() {
             {/* Left: Logo + Activities */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <img src="/ubuntulite.png" alt="UbuntuLite" style={{ width: "18px", height: "18px", filter: "drop-shadow(0 0 5px rgba(233,84,32,0.7))" }} />
-                <span style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "0.03em", color: "rgba(255,255,255,0.9)" }}>Activities</span>
+                <span style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "0.03em", color: "rgba(255,255,255,0.9)", display: typeof window !== 'undefined' && window.innerWidth < 480 ? 'none' : 'inline' }}>Activities</span>
             </div>
 
             {/* Center: date + clock pill */}

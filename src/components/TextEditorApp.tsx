@@ -102,21 +102,7 @@ export default function TextEditorApp({
                 fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
                 animation: "editorOpen 0.18s cubic-bezier(0.2,0,0,1)",
                 ...(isMaximized || isSnapped !== "none" ? {
-                    position: "absolute",
-                    top: 0,
-                    left: isSnapped === "right" ? "50%" : "68px",
-                    width: isSnapped !== "none" ? "calc(50% - 68px)" : "calc(100% - 68px)",
-                    height: "100%",
-                    borderRadius: 0,
-                    transform: "none",
-                } : {
-                    position: "absolute",
-                    top: "auto", left: "auto",
-                    width: "680px", height: "480px",
-                    borderRadius: "12px",
-                    transform: `translate(${position.x}px, ${position.y}px)`,
-                    transition: isDragging ? "none" : "transform 0.1s"
-                })
+                borderRadius: (isMaximized || isSnapped !== "none") ? 0 : "12px",
             }}
             onClick={onFocus}
         >

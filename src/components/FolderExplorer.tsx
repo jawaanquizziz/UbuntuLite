@@ -251,24 +251,15 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
     ];
 
     const windowStyle: React.CSSProperties = (isMaximized || isSnapped !== "none")
-        ? {
-            position: "absolute",
-            top: 0,
-            left: isSnapped === "right" ? "50%" : "68px",
-            width: isSnapped !== "none" ? "calc(50% - 68px)" : "calc(100% - 68px)",
-            height: "100%",
-            transform: "none",
-            zIndex: zIndex || 10
-        }
+        ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s" }
         : {
-            position: "absolute",
-            width: "720px",
-            height: "480px",
+            opacity: isMinimized ? 0 : 1,
+            pointerEvents: isMinimized ? "none" : "auto",
             zIndex: zIndex || 10,
             transform: `translate(${position.x}px, ${position.y}px)`,
             transition: isDragging ? "none" : "transform 0.1s",
-            opacity: isMinimized ? 0 : 1,
-            pointerEvents: isMinimized ? "none" : "auto"
+            width: "min(700px, 95%)",
+            height: "min(500px, 85%)"
         };
 
     const menuItemStyle: React.CSSProperties = { padding: "7px 16px", fontSize: "13px", color: "rgba(255,255,255,0.85)", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap" };

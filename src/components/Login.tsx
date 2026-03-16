@@ -8,11 +8,10 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [time, setTime] = useState<Date | null>(null);
+    const [time, setTime] = useState<Date>(new Date());
     const [extraUsers, setExtraUsers] = useState<{ username: string, created: string }[]>([]);
 
     useEffect(() => {
-        setTime(new Date());
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
@@ -131,14 +130,24 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
                 .pw-actions { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 4px; }
                 .pw-toggle { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; }
                 .pw-toggle:hover { color: white; background: rgba(255,255,255,0.08); }
+                @media (max-width: 768px) {
+                    .login-main-wrapper { flex-direction: column !important; overflow-y: auto !important; }
+                    .login-left-panel { padding: 30px 20px !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.04) !important; flex: none !important; }
+                    .login-right-panel { width: 100% !important; padding: 40px 20px !important; flex: 1 !important; }
+                    .login-clock { fontSize: 48px !important; }
+                }
             ` }} />
 
-            {/* Left decorative panel */}
-            <div style={{
-                flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between",
-                padding: "50px 60px", position: "relative",
-                borderRight: "1px solid rgba(255,255,255,0.04)"
+            {/* Main wrapper with responsive class */}
+            <div className="login-main-wrapper" style={{
+                flex: 1, display: "flex", width: "100%", height: "100%"
             }}>
+                {/* Left decorative panel */}
+                <div className="login-left-panel" style={{
+                    flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between",
+                    padding: "50px 60px", position: "relative",
+                    borderRight: "1px solid rgba(255,255,255,0.04)"
+                }}>
                 {/* Logo + Brand */}
                 <div style={{ display: "flex", alignItems: "center", gap: "14px", animation: "fadeSlideUp 0.5s ease both" }}>
                     <img src="/ubuntulite.png" alt="UbuntuLite" style={{ width: "42px", height: "42px", filter: "drop-shadow(0 2px 10px rgba(233,84,32,0.5))" }} />
@@ -174,7 +183,7 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
             </div>
 
             {/* Right login panel */}
-            <div style={{
+            <div className="login-right-panel" style={{
                 width: "420px", display: "flex", flexDirection: "column",
                 justifyContent: "center", padding: "60px 50px",
                 background: "rgba(15,15,20,0.85)", backdropFilter: "blur(30px)",
@@ -294,5 +303,6 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
                 </div>
             </div>
         </div>
-    );
+    </div>
+);
 }

@@ -1,3 +1,26 @@
+:root {
+    --dock-width: 68px;
+    --dock-height: 100vh;
+    --top-bar-height: 32px;
+    --window-offset-left: 68px;
+    --dock-bottom: auto;
+    --dock-left: 0;
+    --dock-right: auto;
+    --dock-direction: column;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --dock-width: 100vw;
+        --dock-height: 60px;
+        --window-offset-left: 0px;
+        --dock-bottom: 0px;
+        --dock-left: 0px;
+        --dock-right: 0px;
+        --dock-direction: row;
+    }
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -44,18 +67,21 @@ body {
 
 .desktop-dock {
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 68px;
+    left: var(--dock-left);
+    top: auto;
+    bottom: var(--dock-bottom);
+    right: var(--dock-right);
+    width: var(--dock-width);
+    height: var(--dock-height);
     background: linear-gradient(180deg, rgba(15, 15, 25, 0.92) 0%, rgba(20, 12, 35, 0.88) 100%);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
-    flex-direction: column;
+    flex-direction: var(--dock-direction);
     align-items: center;
-    padding-top: 16px;
+    justify-content: center;
+    padding: 8px;
     gap: 8px;
     box-shadow: 2px 0 30px rgba(0, 0, 0, 0.6), inset -1px 0 0 rgba(255, 255, 255, 0.04);
     z-index: 100;
@@ -156,18 +182,18 @@ body {
 
 /* ── Maximized / Snapped windows respect the 68px dock ── */
 .maximized {
-    left: 68px !important;
+    left: var(--window-offset-left) !important;
     top: 0 !important;
-    width: calc(100% - 68px) !important;
-    height: 100% !important;
+    width: calc(100% - var(--window-offset-left)) !important;
+    height: calc(100% - var(--dock-bottom, 0px)) !important;
     border-radius: 0 !important;
 }
 
 .snapped-left {
-    left: 68px !important;
+    left: var(--window-offset-left) !important;
     top: 0 !important;
-    width: calc(50% - 68px) !important;
-    height: 100% !important;
+    width: calc(50% - (var(--window-offset-left) / 2)) !important;
+    height: calc(100% - var(--dock-bottom, 0px)) !important;
     border-radius: 0 !important;
 }
 
@@ -175,7 +201,7 @@ body {
     left: 50% !important;
     top: 0 !important;
     width: 50% !important;
-    height: 100% !important;
+    height: calc(100% - var(--dock-bottom, 0px)) !important;
     border-radius: 0 !important;
 }
 

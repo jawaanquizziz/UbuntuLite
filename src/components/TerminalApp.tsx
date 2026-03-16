@@ -1323,13 +1323,15 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
     };
 
     const windowStyle: React.CSSProperties = (isMaximized || isSnapped !== "none")
-        ? { position: "absolute", top: 0, zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s" }
+        ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s" }
         : {
             opacity: isMinimized ? 0 : 1,
             pointerEvents: isMinimized ? "none" : "auto",
             zIndex: zIndex || 10,
             transform: `translate(${position.x}px, ${position.y}px)`,
-            transition: isDragging ? "none" : "transform 0.1s"
+            transition: isDragging ? "none" : "transform 0.1s",
+            width: "min(680px, 90%)",
+            height: "min(480px, 80%)"
         };
 
     return (
