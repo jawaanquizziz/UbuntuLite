@@ -1367,7 +1367,7 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                 </div>
             </div>
             <div className="terminal-content">
-                <div className="terminal-body" ref={bodyRef} onClick={() => inputRef.current?.focus()} style={{ color: terminalTextColor }}>
+                <div className="terminal-body" ref={bodyRef} onClick={() => inputRef.current?.focus()} style={{ color: isDarkMode ? terminalTextColor : "#000000" }}>
                     <div id="output">
                         {history.map(item => (
                             <div key={item.id} className="output-row">
@@ -1387,7 +1387,7 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                             value={inputStr}
                             onChange={(e) => setInputStr(e.target.value)}
                             onKeyDown={onKeyDown}
-                            style={{ color: terminalTextColor }}
+                            style={{ color: isDarkMode ? terminalTextColor : "#000000" }}
                         />
                     </div>
                 </div>
