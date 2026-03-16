@@ -1399,8 +1399,8 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                     {/* Sidebar header with search */}
                     <div style={{ padding: '10px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <span style={{ color: '#e95420', fontWeight: 700, fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif" }}>📚 Commands</span>
-                            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '10px', fontFamily: "'Inter',sans-serif" }}>{filteredCommands.length} cmds</span>
+                            <span style={{ color: isDarkMode ? '#e95420' : '#c73a00', fontWeight: 700, fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'Inter',sans-serif" }}>📚 Commands</span>
+                            <span style={{ color: isDarkMode ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.4)', fontSize: '10px', fontFamily: "'Inter',sans-serif" }}>{filteredCommands.length} cmds</span>
                         </div>
                         {/* Search box */}
                         <div style={{ position: 'relative' }}>
@@ -1427,8 +1427,8 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                                 style={{
                                     padding: '2px 8px', fontSize: '10px', borderRadius: 20, border: 'none', cursor: 'pointer',
                                     fontFamily: "'Inter',sans-serif", fontWeight: 600, letterSpacing: '0.04em',
-                                    background: activeCategory === cat ? '#e95420' : 'rgba(255,255,255,0.08)',
-                                    color: activeCategory === cat ? '#fff' : 'rgba(255,255,255,0.5)',
+                                    background: activeCategory === cat ? (isDarkMode ? '#e95420' : '#c73a00') : (isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'),
+                                    color: activeCategory === cat ? '#fff' : (isDarkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.6)'),
                                     transition: 'all 0.15s',
                                 }}
                             >{cat}</button>
@@ -1458,8 +1458,8 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                             .map((c, i) => (
                                 <li key={i} onClick={() => handleCommandClick(c)}
                                     style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '9px 12px', cursor: 'pointer' }}>
-                                    <span className="cmd-name" style={{ color: '#e95420', fontWeight: 700, fontFamily: "'Ubuntu Mono',monospace", fontSize: '12px', display: 'block', marginBottom: 2 }}>{c.name}</span>
-                                    <span className="cmd-desc" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontFamily: "'Inter',sans-serif", lineHeight: 1.3 }}>{c.desc}</span>
+                                    <span className="cmd-name" style={{ color: isDarkMode ? '#e95420' : '#c73a00', fontWeight: 700, fontFamily: "'Ubuntu Mono',monospace", fontSize: '12px', display: 'block', marginBottom: 2 }}>{c.name}</span>
+                                    <span className="cmd-desc" style={{ color: isDarkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.7)', fontSize: '11px', fontFamily: "'Inter',sans-serif", lineHeight: 1.3 }}>{c.desc}</span>
                                 </li>
                             ))}
                     </ul>
