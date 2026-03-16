@@ -4,11 +4,22 @@ import React, { useState, useEffect } from "react";
 import { fileContents, saveFs, fs } from "@/lib/MockFs";
 import { useDraggable } from "@/hooks/useDraggable";
 
+interface TextEditorProps {
+    onClose: () => void;
+    onMinimize: () => void;
+    onMaximize: () => void;
+    isMaximized: boolean;
+    isMinimized: boolean;
+    zIndex: number;
+    onFocus: () => void;
+    filePath?: string;
+}
+
 export default function TextEditorApp({
     onClose, onMinimize, onMaximize,
     isMaximized, isMinimized, zIndex, onFocus,
     filePath = "",
-}: any) {
+}: TextEditorProps) {
     const [content, setContent] = useState("");
     const [fileName, setFileName] = useState(filePath || "untitled.txt");
     const [saved, setSaved] = useState(true);
@@ -75,10 +86,6 @@ export default function TextEditorApp({
     };
 
     const lineCount = content.split("\n").length;
-
-    const windowStyle: React.CSSProperties = isMaximized
-        ? { position: "absolute", top: 0, left: "68px", width: "calc(100% - 68px)", height: "100%", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
-        : { position: "absolute", width: "680px", height: "480px", zIndex: zIndex || 10 };
 
     return (
         <div
