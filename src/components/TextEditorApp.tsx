@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { fileContents, saveFs, fs, resolvePath } from "@/lib/MockFs";
+import { fileContents, saveFs, fs } from "@/lib/MockFs";
 import { useDraggable } from "@/hooks/useDraggable";
 
 export default function TextEditorApp({
@@ -17,7 +17,7 @@ export default function TextEditorApp({
     const [saveAsDir, setSaveAsDir] = useState("/root");
     const [saveAsName, setSaveAsName] = useState("untitled.txt");
 
-    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
+    const { position, isDragging, isSnapped } = useDraggable(isMaximized || false);
 
     useEffect(() => {
         if (filePath && fileContents[filePath] !== undefined) {
@@ -105,6 +105,7 @@ export default function TextEditorApp({
                 } : {
                     position: "absolute",
                     top: "auto", left: "auto",
+                    width: "680px", height: "480px",
                     borderRadius: "12px",
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     transition: isDragging ? "none" : "transform 0.1s"
@@ -216,7 +217,7 @@ export default function TextEditorApp({
             {/* Save As Modal */}
             {showSaveAs && (
                 <div onClick={() => setShowSaveAs(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
-                    <div onClick={e => e.stopPropagation()} style={{ background: "#1e1f2e", border: "1px solid rgba(255,255,255,0.13)", borderRadius: "14px", padding: "26px", width: "390px", fontFamily: "'Inter','Segoe UI',sans-serif", boxShadow: "0 24px 60px rgba(0,0,0,0.7)" }}>
+                    <div onClick={e => e.stopPropagation()} style={{ background: "#1e1f2e", border: "1px solid rgba(255,255,255,0.13)", borderRadius: "14px", padding: "26px", width: "390px", maxWidth: "90%", maxHeight: "90%", overflowY: "auto", fontFamily: "'Inter','Segoe UI',sans-serif", boxShadow: "0 24px 60px rgba(0,0,0,0.7)" }}>
                         <h3 style={{ color: "#c0caf5", margin: "0 0 20px", fontSize: "15px", fontWeight: 600 }}>💾 Save As</h3>
 
                         {/* Folder picker */}

@@ -39,7 +39,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
     const [showProps, setShowProps] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized || false);
+    const { position, isDragging, isSnapped } = useDraggable(isMaximized || false);
 
     // Close context menu on outside click
     useEffect(() => {
@@ -408,7 +408,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
                             {clipboard && (
                                 <>
                                     <div style={sepStyle} />
-                                    <div className="ctx-item" onClick={ctxActions.paste} style={menuItemStyle}><span>📌</span> Paste "{clipboard.name}"</div>
+                                    <div className="ctx-item" onClick={ctxActions.paste} style={menuItemStyle}><span>📌</span> Paste &quot;{clipboard.name}&quot;</div>
                                 </>
                             )}
 
@@ -422,7 +422,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
             {/* ── New File / Folder Modal ── */}
             {showNewModal && (
                 <div onClick={() => setShowNewModal(null)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9998 }}>
-                    <div onClick={e => e.stopPropagation()} style={{ background: "#1e1f2e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "12px", padding: "22px", width: "300px", fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+                    <div onClick={e => e.stopPropagation()} style={{ background: "#1e1f2e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "12px", padding: "22px", width: "300px", maxWidth: "90%", maxHeight: "90%", overflowY: "auto", fontFamily: "'Inter','Segoe UI',sans-serif" }}>
                         <h3 style={{ color: "#c0caf5", margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>{showNewModal === "folder" ? "📁 New Folder" : "📄 New File"}</h3>
                         <input
                             autoFocus
@@ -443,7 +443,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
             {/* ── Properties Modal ── */}
             {showProps && (
                 <div onClick={() => setShowProps(null)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9998 }}>
-                    <div onClick={e => e.stopPropagation()} style={{ background: "#1e1f2e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "12px", padding: "22px", width: "300px", fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+                    <div onClick={e => e.stopPropagation()} style={{ background: "#1e1f2e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "12px", padding: "22px", width: "300px", maxWidth: "90%", maxHeight: "90%", overflowY: "auto", fontFamily: "'Inter','Segoe UI',sans-serif" }}>
                         <h3 style={{ color: "#c0caf5", margin: "0 0 14px", fontSize: "14px", fontWeight: 600 }}>ℹ️ Properties</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "rgba(255,255,255,0.4)" }}>Name</span><span style={{ color: "#c0caf5", fontFamily: "monospace" }}>{propsName}</span></div>
