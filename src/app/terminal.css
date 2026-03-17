@@ -207,8 +207,8 @@ body {
 
 .desktop-icons {
     position: absolute;
-    top: 20px;
-    left: 80px;
+    top: calc(var(--top-bar-height) + 20px);
+    left: calc(var(--window-offset-left) + 12px);
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -750,54 +750,7 @@ body {
     line-height: 1.2;
 }
 
-/* Maximized Window State Overlay */
-.terminal-window.maximized,
-.folder-window.maximized,
-.text-editor-window.maximized,
-.settings-window.maximized,
-.calculator-window.maximized,
-.tictactoe-window.maximized {
-    width: calc(100vw - 65px) !important;
-    /* Leave room for dock */
-    max-width: none !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    left: 65px !important;
-    top: 0 !important;
-    transform: none !important;
-}
-
-/* Snapped Left State Overlay */
-.terminal-window.snapped-left,
-.folder-window.snapped-left,
-.text-editor-window.snapped-left,
-.settings-window.snapped-left,
-.calculator-window.snapped-left,
-.tictactoe-window.snapped-left {
-    width: calc(50vw - 32.5px) !important;
-    max-width: none !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    left: 65px !important;
-    top: 0 !important;
-    transform: none !important;
-}
-
-/* Snapped Right State Overlay */
-.terminal-window.snapped-right,
-.folder-window.snapped-right,
-.text-editor-window.snapped-right,
-.settings-window.snapped-right,
-.calculator-window.snapped-right,
-.tictactoe-window.snapped-right {
-    width: calc(50vw - 32.5px) !important;
-    max-width: none !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    left: calc(50vw + 32.5px) !important;
-    top: 0 !important;
-    transform: none !important;
-}
+/* Snapped / Maximized states are handled by the generic .maximized, .snapped-left etc. classes defined earlier */
 
 /* -----------------------------------------------------------------
    Text Editor UI

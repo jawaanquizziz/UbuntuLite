@@ -82,7 +82,6 @@ function TopBar() {
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
                 </svg>
                 <div style={{ width: "1px", height: "16px", background: "rgba(255,255,255,0.1)" }} />
-                <FeedbackWidget />
             </div>
         </div>
     );
@@ -566,7 +565,7 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                 <div style={{
                     position: "absolute",
                     bottom: "20px",
-                    left: "90px", // Just right of the dock
+                    left: "calc(var(--window-offset-left) + 22px)", // Just right of the dock
                     color: "rgba(255,255,255,0.4)",
                     fontFamily: "'Inter', sans-serif",
                     fontSize: "0.8rem",
