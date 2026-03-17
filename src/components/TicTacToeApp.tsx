@@ -83,22 +83,21 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
         <div
             className={`tictactoe-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
-                ...((isMaximized || isSnapped !== "none")
-                    ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", transform: "none", borderRadius: 0, border: "none", zIndex: zIndex || 10 }
+                ...(isMaximized || isSnapped !== "none")
+                    ? { position: "absolute", transform: "none", borderRadius: 0, zIndex: zIndex || 10 }
                     : {
                         position: "absolute",
                         top: "15%", left: "auto",
                         width: "min(400px, 95%)", height: "min(520px, 85%)",
                         transform: `translate(${position.x}px, ${position.y}px)`,
                         zIndex: zIndex || 10,
-                        transition: isDragging ? "none" : "transform 0.1s"
-                    }),
+                        transition: isDragging ? "none" : "transform 0.1s",
+                        borderRadius: "12px",
+                    },
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
                 boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
                 display: "flex", flexDirection: "column", overflow: "hidden",
-                border: (isMaximized || isSnapped !== "none") ? "none" : "1px solid rgba(255,255,255,0.1)",
-                borderRadius: (isMaximized || isSnapped !== "none") ? "0" : "12px",
                 background: "linear-gradient(135deg, #1e1e24, #121214)",
                 fontFamily: "'Inter', sans-serif"
             }}

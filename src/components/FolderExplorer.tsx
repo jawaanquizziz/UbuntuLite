@@ -251,7 +251,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
     ];
 
     const windowStyle: React.CSSProperties = (isMaximized || isSnapped !== "none")
-        ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s" }
+        ? { position: "absolute", zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s", borderRadius: 0 }
         : {
             opacity: isMinimized ? 0 : 1,
             pointerEvents: isMinimized ? "none" : "auto",
@@ -259,7 +259,8 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
             transform: `translate(${position.x}px, ${position.y}px)`,
             transition: isDragging ? "none" : "transform 0.1s",
             width: "min(700px, 95%)",
-            height: "min(500px, 85%)"
+            height: "min(500px, 85%)",
+            borderRadius: "12px"
         };
 
     const menuItemStyle: React.CSSProperties = { padding: "7px 16px", fontSize: "13px", color: "rgba(255,255,255,0.85)", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap" };

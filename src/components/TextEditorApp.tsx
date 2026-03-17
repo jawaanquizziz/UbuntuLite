@@ -101,17 +101,20 @@ export default function TextEditorApp({
                 boxShadow: "0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)",
                 fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
                 animation: "editorOpen 0.18s cubic-bezier(0.2,0,0,1)",
-                ...(isMaximized || isSnapped !== "none")
-                    ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", transform: "none", borderRadius: 0, border: "none" }
-                    : {
-                        position: "absolute",
-                        top: "auto", left: "auto",
-                        width: "min(680px, 90%)",
-                        height: "min(480px, 80%)",
-                        borderRadius: "12px",
-                        transform: `translate(${position.x}px, ${position.y}px)`,
-                        transition: isDragging ? "none" : "transform 0.1s"
-                    }
+                ...(isMaximized || isSnapped !== 'none') ? {
+                    position: 'absolute',
+                    transform: 'none',
+                    borderRadius: 0,
+                    transition: isDragging ? 'none' : 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)'
+                } : {
+                    position: 'absolute',
+                    top: 'auto', left: 'auto',
+                    width: 'min(680px, 90%)',
+                    height: 'min(480px, 80%)',
+                    borderRadius: '12px',
+                    transform: `translate(${position.x}px, ${position.y}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.1s'
+                }
             }}
             onClick={onFocus}
         >
