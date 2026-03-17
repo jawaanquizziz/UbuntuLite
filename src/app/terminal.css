@@ -3,7 +3,7 @@
     --dock-height: 100vh;
     --top-bar-height: 32px;
     --window-offset-left: 68px;
-    --dock-bottom: auto;
+    --dock-bottom: 0px;
     --dock-left: 0;
     --dock-right: auto;
     --dock-direction: column;
@@ -80,9 +80,10 @@ body {
     display: flex;
     flex-direction: var(--dock-direction);
     align-items: center;
-    justify-content: center;
-    padding: 8px;
-    gap: 8px;
+    justify-content: flex-start;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    gap: 12px;
     box-shadow: 2px 0 30px rgba(0, 0, 0, 0.6), inset -1px 0 0 rgba(255, 255, 255, 0.04);
     z-index: 100;
 }
