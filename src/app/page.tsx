@@ -9,7 +9,7 @@ export default function Home() {
   const [username, setUsername] = useState("root");
 
   useEffect(() => {
-    // Log a visit when the application initially loads
+    // Log a visit
     fetch("/api/visits", { method: "POST" }).catch(console.error);
   }, []);
 
@@ -18,12 +18,22 @@ export default function Home() {
     setIsLoggedIn(true);
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("ubuntulite_isLoggedIn");
+  };
+
+  const handleReboot = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("ubuntulite_isLoggedIn");
+  };
+
   return (
     <main>
       {!isLoggedIn ? (
         <Login onLogin={handleLogin} />
       ) : (
-        <Desktop initialUser={username} />
+        <Desktop initialUser={username} onLogout={handleLogout} onReboot={handleReboot} />
       )}
     </main>
   );

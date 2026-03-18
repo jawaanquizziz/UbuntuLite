@@ -251,15 +251,15 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
     ];
 
     const windowStyle: React.CSSProperties = (isMaximized || isSnapped !== "none")
-        ? { position: "absolute", zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s", borderRadius: 0 }
+        ? { zIndex: zIndex || 10, transition: isDragging ? "none" : "transform 0.1s" }
         : {
             opacity: isMinimized ? 0 : 1,
             pointerEvents: isMinimized ? "none" : "auto",
             zIndex: zIndex || 10,
             transform: `translate(${position.x}px, ${position.y}px)`,
             transition: isDragging ? "none" : "transform 0.1s",
-            width: "min(700px, 95%)",
-            height: "min(500px, 85%)",
+            width: "min(950px, 95%)",
+            height: "min(600px, 85%)",
             borderRadius: "12px"
         };
 
@@ -277,6 +277,7 @@ export default function FolderExplorer({ onClose, onMinimize, onMaximize, isMaxi
         <div
             ref={containerRef}
             onClick={onFocus}
+            className={`folder-window ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             tabIndex={0}
             onKeyDown={(e) => {
                 // Don't fire if user is typing in an input inside the component

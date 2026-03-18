@@ -43,11 +43,9 @@ export default function CalculatorApp({ onClose, onMinimize, onMaximize, isMaxim
             className={`settings-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
                 ...(isMaximized || isSnapped !== "none")
-                    ? { position: "absolute", transform: "none", borderRadius: 0, zIndex: zIndex || 10 }
+                    ? { zIndex: zIndex || 10 }
                     : {
-                        position: "absolute",
-                        top: "auto", left: "auto",
-                        width: "min(320px, 90%)", height: "min(450px, 80%)",
+                        width: "min(350px, 90%)", height: "min(500px, 80%)",
                         transform: `translate(${position.x}px, ${position.y}px)`,
                         zIndex: zIndex || 10,
                         transition: isDragging ? "none" : "transform 0.1s",

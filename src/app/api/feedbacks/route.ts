@@ -1,76 +1,50 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const isProduction = process.env.NODE_ENV === 'production';
-const dataFilePath = isProduction
-    ? path.join('/tmp', 'feedbacks.json')
-    : path.join(process.cwd(), 'data', 'feedbacks.json');
-
-async function ensureDataFile() {
-    try {
-        await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
-        try {
-            await fs.access(dataFilePath);
-        } catch {
-            await fs.writeFile(dataFilePath, JSON.stringify([]));
-        }
-    } catch (err) {
-        console.error('Error ensuring data file:', err);
-    }
-}
+import dbConnect from '@/lib/mongodb';
+import Feedback from '@/models/Feedback';
 
 export async function GET() {
-    await ensureDataFile();
     try {
-        const data = await fs.readFile(dataFilePath, 'utf-8');
-        const feedbacks = JSON.parse(data || '[]');
+        await dbConnect();
+        const feedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(100);
         return NextResponse.json(feedbacks);
     } catch (err) {
+        console.error('Failed to read feedbacks:', err);
         return NextResponse.json({ error: 'Failed to read feedbacks' }, { status: 500 });
     }
 }
 
 export async function POST(request: Request) {
-    await ensureDataFile();
     try {
+        await dbConnect();
         const newFeedback = await request.json();
-        const data = await fs.readFile(dataFilePath, 'utf-8');
-        let feedbacks = JSON.parse(data || '[]');
-
-        feedbacks.push({
+        
+        const feedback = await Feedback.create({
             ...newFeedback,
             id: Date.now().toString() + Math.random().toString().slice(2, 6),
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
 
-        if (feedbacks.length > 100) {
-            feedbacks = feedbacks.slice(-100);
-        }
-
-        await fs.writeFile(dataFilePath, JSON.stringify(feedbacks, null, 2));
+        const feedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(100);
 
         return NextResponse.json({ success: true, feedbacks });
     } catch (err) {
+        console.error('Failed to save feedback:', err);
         return NextResponse.json({ error: 'Failed to save feedback' }, { status: 500 });
     }
 }
 
 export async function DELETE(request: Request) {
-    await ensureDataFile();
     try {
+        await dbConnect();
         const { id } = await request.json();
         if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 });
 
-        const data = await fs.readFile(dataFilePath, 'utf-8');
-        let feedbacks: any[] = JSON.parse(data || '[]');
-
-        feedbacks = feedbacks.filter(fb => fb.id !== id);
-
-        await fs.writeFile(dataFilePath, JSON.stringify(feedbacks, null, 2));
+        await Feedback.deleteOne({ id });
+        const feedbacks = await Feedback.find().sort({ createdAt: -1 }).limit(100);
 
         return NextResponse.json({ success: true, feedbacks });
     } catch (err) {
+        console.error('Failed to delete feedback:', err);
         return NextResponse.json({ error: 'Failed to delete feedback' }, { status: 500 });
     }
 }

@@ -32,22 +32,17 @@ export default function BootScreen({ onComplete }: { onComplete: () => void }) {
                 index++;
             } else {
                 clearInterval(printInterval);
-                // Show logo after text is done
                 setTimeout(() => {
                     setShowLogo(true);
-
-                    // Fade out screen after showing logo for a bit
                     setTimeout(() => {
                         setFadeOut(true);
-
-                        // Call complete after fade
                         setTimeout(() => {
                             onComplete();
-                        }, 800);
-                    }, 1500);
+                        }, 1500);
+                    }, 1000);
                 }, 500);
             }
-        }, 120);
+        }, 110);
 
         return () => clearInterval(printInterval);
     }, [onComplete]);

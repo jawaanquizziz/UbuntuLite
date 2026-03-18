@@ -10,16 +10,27 @@ import CalculatorApp from "./CalculatorApp";
 import TicTacToeApp from "./TicTacToeApp";
 import FeedbackWidget from "./FeedbackApp";
 import BootScreen from "./BootScreen";
+import FullScreenPrompt from "./FullScreenPrompt";
 import { loadFs } from "@/lib/MockFs";
 
-function TopBar() {
+function TopBar({ onLogout, onReboot, onSleep }: { onLogout: () => void, onReboot: () => void, onSleep: () => void }) {
     const [now, setNow] = useState(new Date());
-    const [notifOpen, setNotifOpen] = useState(false);
+    const [powerMenuOpen, setPowerMenuOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         const id = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(id);
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = () => setPowerMenuOpen(false);
+        if (powerMenuOpen) {
+            window.addEventListener("click", handleClickOutside);
+        }
+        return () => window.removeEventListener("click", handleClickOutside);
+    }, [powerMenuOpen]);
 
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -51,22 +62,28 @@ function TopBar() {
 
             {/* Center: date + clock pill */}
             <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: 500 }}>
-                    {dayName}, {monthName} {date}
-                </span>
-                <span style={{
-                    fontWeight: 700, fontSize: "13px", letterSpacing: "0.08em",
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    padding: "2px 12px", borderRadius: "20px",
-                    color: "white",
-                }}>
-                    {hours}:{minutes}
-                </span>
+                {isMounted ? (
+                    <>
+                        <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: 500 }}>
+                            {dayName}, {monthName} {date}
+                        </span>
+                        <span style={{
+                            fontWeight: 700, fontSize: "13px", letterSpacing: "0.08em",
+                            background: "rgba(255,255,255,0.08)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            padding: "2px 12px", borderRadius: "20px",
+                            color: "white",
+                        }}>
+                            {hours}:{minutes}
+                        </span>
+                    </>
+                ) : (
+                    <span style={{ color: "transparent" }}>Loading...</span>
+                )}
             </div>
 
-            {/* Right: system tray icons */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {/* Right: system tray icons & Power */}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", position: "relative" }}>
                 {/* Wifi */}
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12.55a11 11 0 0 1 14.08 0" /><path d="M1.42 9a16 16 0 0 1 21.16 0" />
@@ -82,12 +99,145 @@ function TopBar() {
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
                 </svg>
                 <div style={{ width: "1px", height: "16px", background: "rgba(255,255,255,0.1)" }} />
+                
+                {/* Power button */}
+                <div 
+                    onClick={(e) => { e.stopPropagation(); setPowerMenuOpen(!powerMenuOpen); }}
+                    style={{ 
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                        padding: "4px", borderRadius: "4px", transition: "background 0.2s",
+                        background: powerMenuOpen ? "rgba(255,255,255,0.1)" : "transparent"
+                    }}
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5f57" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+                    </svg>
+                </div>
+
+                {/* Power Menu Dropdown */}
+                {powerMenuOpen && (
+                    <div style={{
+                        position: "absolute", top: "35px", right: "0",
+                        width: "180px", background: "rgba(30, 30, 35, 0.95)",
+                        backdropFilter: "blur(20px)", borderRadius: "10px",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+                        padding: "8px 0", zIndex: 300,
+                        overflow: "hidden", animation: "powerMenuFade 0.15s ease-out"
+                    }}>
+                        <style>{`
+                            @keyframes powerMenuFade {
+                                from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+                                to { opacity: 1; transform: translateY(0) scale(1); }
+                            }
+                            .power-item:hover { background: rgba(233, 84, 32, 0.2) !important; color: #fff !important; }
+                        `}</style>
+                        <button 
+                            className="power-item"
+                            onClick={() => {
+                                setPowerMenuOpen(false);
+                                onLogout(); // Directly to login page
+                            }}
+                            style={{
+                                width: "100%", padding: "10px 16px", background: "none", border: "none",
+                                color: "rgba(255,255,255,0.8)", textAlign: "left", cursor: "pointer",
+                                display: "flex", alignItems: "center", gap: "10px", fontSize: "13px",
+                                fontWeight: 500, transition: "all 0.2s"
+                            }}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                            Sleep (Lock)
+                        </button>
+                        <button 
+                            className="power-item"
+                            onClick={() => {
+                                setPowerMenuOpen(false);
+                                onReboot(); // Directly to login page
+                            }}
+                            style={{
+                                width: "100%", padding: "10px 16px", background: "none", border: "none",
+                                color: "rgba(255,255,255,0.8)", textAlign: "left", cursor: "pointer",
+                                display: "flex", alignItems: "center", gap: "10px", fontSize: "13px",
+                                fontWeight: 500, transition: "all 0.2s"
+                            }}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5f57" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" /></svg>
+                            Power Off
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
 
-export default function Desktop({ initialUser = "root" }: { initialUser?: string }) {
+function ScreenSaver({ onWake }: { onWake: () => void }) {
+    const [time, setTime] = useState(new Date());
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        const id = setInterval(() => setTime(new Date()), 1000);
+        const handleWake = () => onWake();
+        window.addEventListener("click", handleWake);
+        window.addEventListener("keydown", handleWake);
+        return () => {
+            clearInterval(id);
+            window.removeEventListener("click", handleWake);
+            window.removeEventListener("keydown", handleWake);
+        };
+    }, [onWake]);
+
+    const hours = time.getHours().toString().padStart(2, "0");
+    const minutes = time.getMinutes().toString().padStart(2, "0");
+    const seconds = time.getSeconds().toString().padStart(2, "0");
+
+    return (
+        <div style={{
+            position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+            background: "#000", zIndex: 999999, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", cursor: "none"
+        }}>
+            <div style={{ 
+                fontSize: "120px", fontWeight: 800, color: "rgba(255,255,255,0.1)", 
+                letterSpacing: "-0.05em", fontFamily: "'Inter', sans-serif",
+                display: "flex", gap: "20px", animation: "floatTime 10s ease-in-out infinite"
+            }}>
+                <style>{`
+                    @keyframes floatTime {
+                        0%, 100% { transform: translateY(0) scale(1.0); }
+                        50% { transform: translateY(-30px) scale(1.05); }
+                    }
+                `}</style>
+                {isMounted ? (
+                    <>
+                        <span>{hours}</span>
+                        <span style={{ color: "#E95420" }}>:</span>
+                        <span>{minutes}</span>
+                        <span style={{ fontSize: "40px", alignSelf: "flex-end", marginBottom: "30px", opacity: 0.5 }}>{seconds}</span>
+                    </>
+                ) : (
+                    <span style={{ color: "transparent" }}>00:00:00</span>
+                )}
+            </div>
+            <div style={{ 
+                marginTop: "40px", color: "rgba(255,255,255,0.3)", fontSize: "18px", 
+                letterSpacing: "0.2em", fontWeight: 500, textTransform: "uppercase" 
+            }}>
+                UbuntuLite Sleep Mode
+            </div>
+            <div style={{ 
+                position: "absolute", bottom: "40px", color: "rgba(255,255,255,0.2)", fontSize: "14px" 
+            }}>
+                Click any key to wake up
+            </div>
+        </div>
+    );
+}
+
+type DesktopAction = "open-terminal" | "open-home" | "toggle-icons" | "open-settings" | "toggle-fullscreen";
+
+export default function Desktop({ initialUser = "root", onLogout, onReboot }: { initialUser?: string, onLogout: () => void, onReboot: () => void }) {
     const [terminalState, setTerminalState] = useState({ open: false, minimized: false, maximized: false, zIndex: 10 });
     const [folderState, setFolderState] = useState({ open: false, minimized: false, maximized: false, zIndex: 5 });
     const [settingsState, setSettingsState] = useState({ open: false, minimized: false, maximized: false, zIndex: 5 });
@@ -101,6 +251,7 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
     const [terminalTextColor, setTerminalTextColor] = useState("#ffffff");
     const [isLoaded, setIsLoaded] = useState(false);
     const [isBooting, setIsBooting] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
     const [desktopCtx, setDesktopCtx] = useState<{ x: number, y: number } | null>(null);
     const [showDesktopIcons, setShowDesktopIcons] = useState(true);
 
@@ -135,7 +286,7 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
         }
     }, [desktopBg, terminalUser, terminalHost, terminalTextColor, showDesktopIcons, isLoaded]);
 
-    const handleDesktopContextAction = (action: "open-terminal" | "open-home" | "toggle-icons" | "open-settings") => {
+    const handleDesktopContextAction = (action: DesktopAction) => {
         setDesktopCtx(null);
         switch (action) {
             case "open-terminal":
@@ -157,6 +308,17 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                 if (!settingsState.open || settingsState.minimized) {
                     setSettingsState(s => ({ ...s, open: true, minimized: false, zIndex: 20 }));
                     bringToFront("settings");
+                }
+                break;
+            case "toggle-fullscreen":
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
                 }
                 break;
         }
@@ -255,6 +417,13 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
         bringToFront('editor');
     };
 
+    const handlePowerOff = () => {
+        setIsShuttingDown(true);
+        setTimeout(() => {
+            onReboot();
+        }, 1500);
+    };
+
     if (!isLoaded) return null;
 
     const isAnimated = desktopBg.startsWith("ANIMATED_");
@@ -271,8 +440,11 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
             {/* Boot Screen */}
             {isBooting && <BootScreen onComplete={() => setIsBooting(false)} />}
 
+            {/* Full Screen Prompt (appears after boot) */}
+            {!isBooting && <FullScreenPrompt />}
+
             {/* ── Top Bar ── */}
-            <TopBar />
+            <TopBar onLogout={onLogout} onReboot={onReboot} onSleep={onLogout} />
 
             {/* ── Workspace (everything below the bar) ── */}
             <div
@@ -378,10 +550,36 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                                 textAlign: "left",
                                 fontSize: "13px",
                                 cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px"
                             }}
                             onMouseDown={(e) => e.preventDefault()}
                         >
-                            Desktop Settings (Properties)
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                            Desktop Settings
+                        </button>
+                        <div style={{ margin: "4px 0", borderTop: "1px solid rgba(255,255,255,0.08)" }} />
+                        <button
+                            onClick={() => handleDesktopContextAction("toggle-fullscreen")}
+                            style={{
+                                width: "100%",
+                                padding: "8px 14px",
+                                background: "rgba(233, 84, 32, 0.1)",
+                                border: "none",
+                                color: "#E95420",
+                                textAlign: "left",
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px"
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" /></svg>
+                            {typeof document !== 'undefined' && document.fullscreenElement ? "Exit Full Screen" : "Enter Full Screen"}
                         </button>
                     </div>
                 )}
@@ -561,21 +759,6 @@ export default function Desktop({ initialUser = "root" }: { initialUser?: string
                     />
                 )}
 
-                {/* Desktop Copyright Watermark */}
-                <div style={{
-                    position: "absolute",
-                    bottom: "20px",
-                    left: "calc(var(--window-offset-left) + 22px)", // Just right of the dock
-                    color: "rgba(255,255,255,0.4)",
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: "0.8rem",
-                    pointerEvents: "none",
-                    zIndex: 0,
-                    letterSpacing: "0.5px",
-                    textShadow: "0 1px 2px rgba(0,0,0,0.5)"
-                }}>
-                    UbuntuLite 2026 &copy; Jawaan
-                </div>
 
                 <FeedbackWidget />
             </div>

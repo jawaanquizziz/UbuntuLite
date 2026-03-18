@@ -80,9 +80,9 @@ body {
     display: flex;
     flex-direction: var(--dock-direction);
     align-items: center;
-    justify-content: center;
-    padding: 8px;
-    gap: 8px;
+    justify-content: flex-start;
+    padding: 15px 8px;
+    gap: 12px;
     box-shadow: 2px 0 30px rgba(0, 0, 0, 0.6), inset -1px 0 0 rgba(255, 255, 255, 0.04);
     z-index: 100;
 }
@@ -180,29 +180,25 @@ body {
     color: #7cffa4;
 }
 
-/* ── Maximized / Snapped windows respect the 68px dock ── */
-.maximized {
-    left: var(--window-offset-left) !important;
-    top: var(--top-bar-height) !important;
-    width: calc(100% - var(--window-offset-left)) !important;
-    height: calc(100% - var(--top-bar-height) - var(--dock-bottom, 0px)) !important;
-    border-radius: 0 !important;
-}
+/* ── Maximized / Snapped windows respect the dock and fill workspace ── */
+/* Maximized style moved to end for priority */
 
 .snapped-left {
     left: var(--window-offset-left) !important;
-    top: var(--top-bar-height) !important;
+    top: 0 !important;
     width: calc(50% - (var(--window-offset-left) / 2)) !important;
-    height: calc(100% - var(--top-bar-height) - var(--dock-bottom, 0px)) !important;
+    height: 100% !important;
     border-radius: 0 !important;
+    transform: none !important;
 }
 
 .snapped-right {
     left: calc(50% + (var(--window-offset-left) / 2)) !important;
-    top: var(--top-bar-height) !important;
+    top: 0 !important;
     width: calc(50% - (var(--window-offset-left) / 2)) !important;
-    height: calc(100% - var(--top-bar-height) - var(--dock-bottom, 0px)) !important;
+    height: 100% !important;
     border-radius: 0 !important;
+    transform: none !important;
 }
 
 .desktop-icons {
@@ -263,6 +259,7 @@ body {
     word-break: break-word;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -1024,4 +1021,19 @@ body {
 
 .login-error.show {
     opacity: 1;
+}
+
+/* ── Maximized State (at end for highest precedence) ── */
+.maximized {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    z-index: 20000 !important;
+    border-radius: 0 !important;
+    transform: none !important;
+    border: none !important;
 }

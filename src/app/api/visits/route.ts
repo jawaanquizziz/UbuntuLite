@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'visits.json');
+import dbConnect from '@/lib/mongodb';
+import Visit from '@/models/Visit';
 
 // Get total visits
 export async function GET() {
     try {
-        if (!fs.existsSync(dataFilePath)) {
-            fs.writeFileSync(dataFilePath, JSON.stringify({ totalVisits: 0 }));
+        await dbConnect();
+        let visit = await Visit.findOne();
+        if (!visit) {
+            visit = await Visit.create({ totalVisits: 0 });
         }
-        const rawData = fs.readFileSync(dataFilePath, 'utf-8');
-        const data = JSON.parse(rawData);
-        return NextResponse.json(data);
+        return NextResponse.json(visit);
     } catch (error) {
+        console.error('Failed to read visits data:', error);
         return NextResponse.json({ error: 'Failed to read visits data' }, { status: 500 });
     }
 }
@@ -21,18 +20,17 @@ export async function GET() {
 // Increment visits
 export async function POST() {
     try {
-        if (!fs.existsSync(dataFilePath)) {
-            fs.writeFileSync(dataFilePath, JSON.stringify({ totalVisits: 0 }));
+        await dbConnect();
+        let visit = await Visit.findOne();
+        if (!visit) {
+            visit = await Visit.create({ totalVisits: 1 });
+        } else {
+            visit.totalVisits += 1;
+            await visit.save();
         }
-        const rawData = fs.readFileSync(dataFilePath, 'utf-8');
-        const data = JSON.parse(rawData);
-
-        data.totalVisits += 1;
-
-        fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
-
-        return NextResponse.json(data);
+        return NextResponse.json(visit);
     } catch (error) {
+        console.error('Failed to update visits data:', error);
         return NextResponse.json({ error: 'Failed to update visits data' }, { status: 500 });
     }
 }

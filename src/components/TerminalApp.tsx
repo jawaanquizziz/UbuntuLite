@@ -14,11 +14,15 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
     const bodyRef = useRef<HTMLDivElement>(null);
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [terminalUserName, setTerminalUserName] = useState<string | null>(null);
+    const [showNamePrompt, setShowNamePrompt] = useState(false);
+    const [nameInput, setNameInput] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [activeCategory, setActiveCategory] = useState("All");
 
     const { position, handleMouseDown, isDragging, isSnapped } = useDraggable(isMaximized);
 
+    const displayUser = terminalUserName || terminalUser || "root";
     const displayPath = currentDir.replace("/root", "~");
 
     useEffect(() => {
@@ -39,10 +43,44 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
     }, []);
 
     useEffect(() => {
-        if (commandHistory.length > 0) {
-            localStorage.setItem("ubuntu_commandHistory", JSON.stringify(commandHistory));
+        const savedName = localStorage.getItem("ubuntulite_terminal_name");
+        if (savedName) {
+            setTerminalUserName(savedName);
+            print(
+                <div style={{ color: "#E95420", fontWeight: 700, marginBottom: "8px", fontSize: "14px" }}>
+                    Hello Welcome to UbuntuLite's Terminal, {savedName}!
+                </div>
+            );
+        } else {
+            setShowNamePrompt(true);
         }
-    }, [commandHistory]);
+    }, []);
+
+    const handleNameSubmit = async () => {
+        if (!nameInput.trim()) return;
+        const name = nameInput.trim();
+        setTerminalUserName(name);
+        localStorage.setItem("ubuntulite_terminal_name", name);
+        setShowNamePrompt(false);
+        
+        // Welcome message
+        print(
+            <div style={{ color: "#E95420", fontWeight: 700, marginBottom: "8px", fontSize: "14px" }}>
+                Hello Welcome to UbuntuLite's Terminal, {name}!
+            </div>
+        );
+
+        // Sync with database
+        try {
+            await fetch("/api/terminal-users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name }),
+            });
+        } catch (e) {
+            console.error("Failed to sync name with database", e);
+        }
+    };
 
     const print = (content: React.ReactNode) => {
         setHistory(prev => [...prev, { id: Date.now() + Math.random(), content }]);
@@ -1323,15 +1361,16 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
     };
 
     const windowStyle: React.CSSProperties = (isMaximized || isSnapped !== "none")
-        ? { position: "absolute", top: 0, left: "var(--window-offset-left)", width: "calc(100% - var(--window-offset-left))", height: "calc(100% - var(--dock-bottom, 0px))", zIndex: zIndex || 10, transform: "none", transition: isDragging ? "none" : "transform 0.1s" }
+        ? { zIndex: zIndex || 10, transition: isDragging ? "none" : "transform 0.1s" }
         : {
             opacity: isMinimized ? 0 : 1,
             pointerEvents: isMinimized ? "none" : "auto",
             zIndex: zIndex || 10,
             transform: `translate(${position.x}px, ${position.y}px)`,
             transition: isDragging ? "none" : "transform 0.1s",
-            width: "min(680px, 90%)",
-            height: "min(480px, 80%)"
+            width: "min(1000px, 95%)",
+            height: "min(620px, 85%)",
+            borderRadius: "12px",
         };
 
     return (
@@ -1340,10 +1379,66 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
             id="terminal-window"
             style={windowStyle}
             onClick={() => {
-                inputRef.current?.focus();
+                if (!showNamePrompt) inputRef.current?.focus();
                 if (onFocus) onFocus();
             }}
         >
+            {/* Name Prompt Modal */}
+            {showNamePrompt && (
+                <div style={{
+                    position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+                    background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    zIndex: 1000, borderRadius: "12px"
+                }}>
+                    <div style={{
+                        width: "min(400px, 85%)", background: "#1a1b26", padding: "30px",
+                        borderRadius: "20px", border: "1px solid rgba(233, 84, 32, 0.3)",
+                        boxShadow: "0 20px 40px rgba(0,0,0,0.6)", textAlign: "center",
+                        animation: "promptFade 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
+                    }}>
+                        <style>{`
+                            @keyframes promptFade {
+                                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                                to { opacity: 1; transform: scale(1) translateY(0); }
+                            }
+                        `}</style>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E95420" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "20px" }}>
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <h2 style={{ color: "white", marginBottom: "10px", fontSize: "20px", fontWeight: 700 }}>Welcome!</h2>
+                        <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "25px", fontSize: "14px" }}>Please enter your name to start using the terminal.</p>
+                        <input 
+                            type="text" 
+                            placeholder="Your Name"
+                            autoFocus
+                            value={nameInput}
+                            onChange={(e) => setNameInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit()}
+                            style={{
+                                width: "100%", padding: "12px 16px", background: "rgba(255,255,255,0.05)",
+                                border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px",
+                                color: "white", fontSize: "16px", outline: "none", marginBottom: "20px",
+                                transition: "all 0.2s"
+                            }}
+                            onFocus={(e) => e.currentTarget.style.borderColor = "#E95420"}
+                            onBlur={(e) => e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"}
+                        />
+                        <button 
+                            onClick={handleNameSubmit}
+                            style={{
+                                width: "100%", padding: "12px", background: "linear-gradient(135deg, #E95420, #C94010)",
+                                color: "white", border: "none", borderRadius: "12px", fontWeight: 700,
+                                fontSize: "15px", cursor: "pointer", transition: "all 0.2s"
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+                            onMouseLeave={e => e.currentTarget.style.transform = "none"}
+                        >
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+            )}
             <div
                 className="terminal-header"
                 onMouseDown={handleMouseDown}
@@ -1354,7 +1449,7 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                     <span className="minimize" onClick={onMinimize}></span>
                     <span className="maximize" onClick={onMaximize}></span>
                 </div>
-                <div className="terminal-title">{terminalUser}@{terminalHost}: {displayPath}</div>
+                <div className="terminal-title">{displayUser}@{terminalHost}: {displayPath}</div>
                 <div className="terminal-actions">
                     <button className="action-btn" onClick={() => setIsDarkMode(!isDarkMode)}>
                         {isDarkMode ? (
@@ -1378,7 +1473,7 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                         ))}
                     </div>
                     <div className="input-line">
-                        <span className="prompt"><span className="user">{terminalUser}@{terminalHost}</span>:<span className="path">{displayPath}</span>#</span>
+                        <span className="prompt"><span className="user">{displayUser}@{terminalHost}</span>:<span className="path">{displayPath}</span>#</span>
                         <input
                             type="text"
                             id="command-input"

@@ -10,8 +10,11 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
     const [loading, setLoading] = useState(false);
     const [time, setTime] = useState<Date>(new Date());
     const [extraUsers, setExtraUsers] = useState<{ username: string, created: string }[]>([]);
+    const [isMounted, setIsMounted] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
@@ -34,6 +37,8 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
         if (!password) { setError(true); return; }
         if (password === "ubuntu2026") {
             setLoading(true);
+            await new Promise(r => setTimeout(r, 600));
+            setIsExiting(true);
             await new Promise(r => setTimeout(r, 800));
             onLogin(username || "root");
         } else {
@@ -50,7 +55,10 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
             position: "fixed", inset: 0, zIndex: 99999,
             background: "#0a0a0f",
             display: "flex", fontFamily: "'Inter', sans-serif",
-            overflow: "hidden"
+            overflow: "hidden",
+            opacity: isExiting ? 0 : 1,
+            transition: "opacity 0.8s ease-in-out",
+            pointerEvents: isExiting ? "none" : "auto"
         }}>
             {/* Animated background orbs */}
             <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
@@ -158,18 +166,62 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
                 </div>
 
                 {/* Center clock */}
-                <div style={{ animation: "fadeSlideUp 0.6s ease 0.2s both" }}>
-                    <div style={{ fontSize: "72px", fontWeight: 700, color: "white", lineHeight: 1, letterSpacing: "-2px" }}>{timeStr}</div>
-                    <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)", marginTop: "10px" }}>{dateStr}</div>
+                <div style={{ animation: "fadeSlideUp 0.6s ease 0.2s both", minHeight: "100px" }}>
+                    {isMounted ? (
+                        <>
+                            <div style={{ fontSize: "72px", fontWeight: 700, color: "white", lineHeight: 1, letterSpacing: "-2px" }}>{timeStr}</div>
+                            <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)", marginTop: "10px" }}>{dateStr}</div>
+                        </>
+                    ) : (
+                        <div style={{ fontSize: "72px", fontWeight: 700, color: "transparent", lineHeight: 1, letterSpacing: "-2px" }}>00:00 AM</div>
+                    )}
 
                     <div style={{ marginTop: "40px", display: "flex", flexDirection: "column", gap: "12px" }}>
                         {[
-                            { icon: "🖥️", label: "Kernel", value: "Linux 6.8.0-LTS" },
-                            { icon: "💾", label: "Memory", value: "8.0 GB / 16 GB" },
-                            { icon: "⚡", label: "Status", value: "Online" },
+                            { 
+                                icon: (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="4" y="4" width="16" height="16" rx="2" />
+                                        <rect x="9" y="9" width="6" height="6" />
+                                        <line x1="9" y1="1" x2="9" y2="4" />
+                                        <line x1="15" y1="1" x2="15" y2="4" />
+                                        <line x1="9" y1="20" x2="9" y2="23" />
+                                        <line x1="15" y1="20" x2="15" y2="23" />
+                                        <line x1="20" y1="9" x2="23" y2="9" />
+                                        <line x1="20" y1="15" x2="23" y2="15" />
+                                        <line x1="1" y1="9" x2="4" y2="9" />
+                                        <line x1="1" y1="15" x2="4" y2="15" />
+                                    </svg>
+                                ), 
+                                label: "Kernel", 
+                                value: "6.8.0-LTS" 
+                            },
+                            { 
+                                icon: (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M6 19v-3h12v3c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2z" />
+                                        <path d="M6 5v3h12V5c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2-2z" />
+                                        <rect x="6" y="8" width="12" height="8" />
+                                        <line x1="9" y1="11" x2="9" y2="13" />
+                                        <line x1="12" y1="11" x2="12" y2="13" />
+                                        <line x1="15" y1="11" x2="15" y2="13" />
+                                    </svg>
+                                ), 
+                                label: "Memory", 
+                                value: "8.0 / 16 GB" 
+                            },
+                            { 
+                                icon: (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                    </svg>
+                                ), 
+                                label: "Status", 
+                                value: "Online" 
+                            },
                         ].map(item => (
                             <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                <span style={{ fontSize: "16px" }}>{item.icon}</span>
+                                <span style={{ color: "#E95420", display: "flex", alignItems: "center", opacity: 0.8 }}>{item.icon}</span>
                                 <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "13px", width: "70px" }}>{item.label}</span>
                                 <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "13px", fontFamily: "monospace" }}>{item.value}</span>
                             </div>
@@ -178,7 +230,7 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
                 </div>
 
                 <div style={{ color: "rgba(255,255,255,0.2)", fontSize: "12px" }}>
-                    © 2026 UbuntuLite · Created by <strong style={{ color: "rgba(255,255,255,0.35)" }}>Jawaan</strong>
+                    © 2026 UbuntuLite · Created by <strong style={{ color: "rgba(255,255,255,0.35)" }}>Jawaan Santh</strong>
                 </div>
             </div>
 

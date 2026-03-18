@@ -84,11 +84,9 @@ export default function TicTacToeApp({ onClose, onMinimize, onMaximize, isMaximi
             className={`tictactoe-window dark-mode ${isMaximized ? "maximized" : ""} ${isSnapped === 'left' ? 'snapped-left' : isSnapped === 'right' ? 'snapped-right' : ''}`}
             style={{
                 ...(isMaximized || isSnapped !== "none")
-                    ? { position: "absolute", transform: "none", borderRadius: 0, zIndex: zIndex || 10 }
+                    ? { zIndex: zIndex || 10 }
                     : {
-                        position: "absolute",
-                        top: "15%", left: "auto",
-                        width: "min(400px, 95%)", height: "min(520px, 85%)",
+                        width: "min(420px, 95%)", height: "min(540px, 85%)",
                         transform: `translate(${position.x}px, ${position.y}px)`,
                         zIndex: zIndex || 10,
                         transition: isDragging ? "none" : "transform 0.1s",

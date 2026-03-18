@@ -102,15 +102,11 @@ export default function TextEditorApp({
                 fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
                 animation: "editorOpen 0.18s cubic-bezier(0.2,0,0,1)",
                 ...(isMaximized || isSnapped !== 'none') ? {
-                    position: 'absolute',
-                    transform: 'none',
-                    borderRadius: 0,
+                    zIndex: zIndex || 10,
                     transition: isDragging ? 'none' : 'transform 0.18s cubic-bezier(0.2, 0, 0, 1)'
                 } : {
-                    position: 'absolute',
-                    top: 'auto', left: 'auto',
-                    width: 'min(680px, 90%)',
-                    height: 'min(480px, 80%)',
+                    width: 'min(1000px, 95%)',
+                    height: 'min(620px, 85%)',
                     borderRadius: '12px',
                     transform: `translate(${position.x}px, ${position.y}px)`,
                     transition: isDragging ? 'none' : 'transform 0.1s'

@@ -46,15 +46,15 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
                 flexDirection: "column",
                 position: "absolute",
                 ...(isMaximized || isSnapped !== 'none') ? {
-                    transform: "none",
-                    borderRadius: 0,
+                    zIndex: zIndex || 10,
                     transition: isDragging ? "none" : "transform 0.1s"
                 } : {
-                    width: "min(600px, 90%)",
-                    height: "450px",
+                    width: "min(800px, 95%)",
+                    height: "min(520px, 85%)",
                     borderRadius: "8px",
                     transform: `translate(${position.x}px, ${position.y}px)`,
-                    transition: isDragging ? "none" : "transform 0.1s"
+                    transition: isDragging ? "none" : "transform 0.1s",
+                    zIndex: zIndex || 10,
                 }
             }}
             onClick={onFocus}
@@ -271,10 +271,7 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
                                 A simulated web terminal environment designed for practicing Linux commands and navigating a mocked file system seamlessly using React and Next.js.
                             </p>
                             <div style={{ marginTop: "25px", paddingTop: "20px", borderTop: "1px solid #444", width: "80%", textAlign: "center" }}>
-                                <p style={{ color: "#fff", fontWeight: 600, fontSize: "0.95rem", letterSpacing: "1px", marginBottom: "4px" }}>
-                                    &copy; 2026 UbuntuLite <span style={{ color: "#e95420" }}>|</span> Jawaan
-                                </p>
-                                <p style={{ color: "#888", fontSize: "0.8rem" }}>All Rights Reserved. Professional Edition.</p>
+                                <p style={{ color: "#888", fontSize: "0.8rem" }}>Professional Edition.</p>
                             </div>
                         </div>
                     )}
