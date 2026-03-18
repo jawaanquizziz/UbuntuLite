@@ -254,6 +254,7 @@ export default function Desktop({ initialUser = "root", onLogout, onReboot }: { 
     const [isMounted, setIsMounted] = useState(false);
     const [desktopCtx, setDesktopCtx] = useState<{ x: number, y: number } | null>(null);
     const [showDesktopIcons, setShowDesktopIcons] = useState(true);
+    const [isShuttingDown, setIsShuttingDown] = useState(false);
 
     React.useEffect(() => {
         const closeCtx = () => setDesktopCtx(null);
@@ -438,7 +439,7 @@ export default function Desktop({ initialUser = "root", onLogout, onReboot }: { 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', overflow: 'hidden' }}>
             {/* Boot Screen */}
-            {isBooting && <BootScreen onComplete={() => setIsBooting(false)} />}
+            {(isBooting || isShuttingDown) && <BootScreen onComplete={() => setIsBooting(false)} />}
 
             {/* Full Screen Prompt (appears after boot) */}
             {!isBooting && <FullScreenPrompt />}

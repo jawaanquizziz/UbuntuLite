@@ -41,7 +41,6 @@ export default function SettingsApp({ onClose, onMinimize, onMaximize, isMaximiz
             style={{
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
-                zIndex: zIndex || 10,
                 display: "flex",
                 flexDirection: "column",
                 position: "absolute",

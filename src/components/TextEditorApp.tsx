@@ -93,7 +93,6 @@ export default function TextEditorApp({
             style={{
                 opacity: isMinimized ? 0 : 1,
                 pointerEvents: isMinimized ? "none" : "auto",
-                zIndex: zIndex || 10,
                 display: "flex",
                 flexDirection: "column",
                 background: "#1a1b26",
