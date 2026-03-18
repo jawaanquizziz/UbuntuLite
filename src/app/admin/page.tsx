@@ -355,7 +355,7 @@ export default function AdminPage() {
                                     <thead>
                                         <tr style={{ background: "rgba(255,255,255,0.02)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                                             <th style={{ textAlign: "left", padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "1px" }}>USER NAME</th>
-                                            <th style={{ textAlign: "right", padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "1px" }}>REGISTRATION DATE</th>
+                                            <th style={{ textAlign: "right", padding: "16px 24px", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.3)", letterSpacing: "1px" }}>LOGIN DATE & TIME</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -383,7 +383,13 @@ export default function AdminPage() {
                                                 </td>
                                                 <td style={{ padding: "16px 24px", textAlign: "right" }}>
                                                     <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
-                                                        {new Date(user.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        {new Date(user.timestamp).toLocaleString(undefined, { 
+                                                            month: 'short', 
+                                                            day: 'numeric', 
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}
                                                     </span>
                                                 </td>
                                             </tr>

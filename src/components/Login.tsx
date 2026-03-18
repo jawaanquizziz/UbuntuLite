@@ -37,6 +37,15 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
         if (!password) { setError(true); return; }
         if (password === "ubuntu2026") {
             setLoading(true);
+            try {
+                await fetch("/api/terminal-users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: username || "root" })
+                });
+            } catch (err) {
+                console.error("Failed to track login:", err);
+            }
             await new Promise(r => setTimeout(r, 600));
             setIsExiting(true);
             await new Promise(r => setTimeout(r, 800));
