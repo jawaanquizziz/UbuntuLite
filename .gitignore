@@ -44,6 +44,3 @@ node_modules
 # data files
 data/visits.json
 data/feedbacks.json
-src/app/admin/page.tsx
-src/models/Visit.ts
-src/app/terminal.css
