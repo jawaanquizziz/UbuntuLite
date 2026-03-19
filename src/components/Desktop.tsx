@@ -257,6 +257,7 @@ export default function Desktop({ initialUser = "root", onLogout, onReboot }: { 
     const [desktopCtx, setDesktopCtx] = useState<{ x: number, y: number } | null>(null);
     const [showDesktopIcons, setShowDesktopIcons] = useState(true);
     const [activeName, setActiveName] = useState("");
+    const [isShuttingDown, setIsShuttingDown] = useState(false);
 
     useEffect(() => {
         const updateName = () => {

@@ -62,14 +62,18 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (isAuthenticated) {
-            const loadData = async () => {
-                await Promise.all([
-                    fetchFeedbacks(),
-                    fetchVisits(),
-                    fetchTerminalUsers()
-                ]);
-            };
-            loadData();
+            // Initial fetch
+            fetchFeedbacks();
+            fetchVisits();
+            fetchTerminalUsers();
+
+            // Polling for real-time-ish updates
+            const interval = setInterval(() => {
+                fetchVisits();
+                fetchTerminalUsers();
+            }, 15000); // 15 seconds
+
+            return () => clearInterval(interval);
         }
     }, [isAuthenticated]);
 
@@ -337,7 +341,23 @@ export default function AdminPage() {
                     {/* Terminal Users Column */}
                     <div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
-                            <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700 }}>Terminal Active Names</h2>
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 700 }}>Terminal Active Names</h2>
+                                <button 
+                                    onClick={fetchTerminalUsers} 
+                                    title="Refresh List"
+                                    style={{ 
+                                        background: "rgba(233, 84, 32, 0.1)", border: "none", 
+                                        width: "28px", height: "28px", borderRadius: "8px", 
+                                        cursor: "pointer", display: "flex", alignItems: "center", 
+                                        justifyContent: "center", color: "#E95420", transition: "all 0.2s" 
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = "rgba(233, 84, 32, 0.2)"}
+                                    onMouseLeave={e => e.currentTarget.style.background = "rgba(233, 84, 32, 0.1)"}
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                </button>
+                            </div>
                             <span style={{ background: "rgba(255,255,255,0.05)", padding: "4px 12px", borderRadius: "100px", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{terminalUsers.length} total</span>
                         </div>
                         <div style={{ 
