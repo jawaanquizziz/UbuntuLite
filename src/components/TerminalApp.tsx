@@ -51,6 +51,12 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
                     Hello Welcome to UbuntuLite's Terminal, {savedName}!
                 </div>
             );
+            // Sync again to ensure admin panel shows current active session
+            fetch("/api/terminal-users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: savedName }),
+            }).catch(e => console.error("Failed to sync name on open", e));
         } else {
             setShowNamePrompt(true);
         }
@@ -668,6 +674,14 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                 existing.push({ username: u, password: 'ubuntu2026', home: `/home/${u}`, shell: '/bin/bash', created: new Date().toISOString() });
                 localStorage.setItem('ubuntu_users', JSON.stringify(existing));
                 if (!fs[`/home/${u}`]) { fs[`/home/${u}`] = []; saveFs(); }
+                
+                // Sync with database
+                fetch("/api/terminal-users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: u }),
+                }).catch(e => console.error("Failed to sync new user", e));
+
                 return <div style={{ color: '#7cffa4' }}>{`useradd: user '${u}' created\nhome: /home/${u}\npassword: ubuntu2026 (default)`}</div>;
             },
             adduser: (args) => {
@@ -678,6 +692,14 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                 existing.push({ username: u, password: 'ubuntu2026', home: `/home/${u}`, shell: '/bin/bash', created: new Date().toISOString() });
                 localStorage.setItem('ubuntu_users', JSON.stringify(existing));
                 if (!fs[`/home/${u}`]) { fs[`/home/${u}`] = []; saveFs(); }
+
+                // Sync with database
+                fetch("/api/terminal-users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: u }),
+                }).catch(e => console.error("Failed to sync added user", e));
+
                 return <div style={{ whiteSpace: 'pre', color: '#7cffa4' }}>{`Adding user '${u}' ...\nCreating home directory '/home/${u}' ...\nAdding user '${u}' to group 'users'\npassword set to 'ubuntu2026' (default)\nNew account created successfully.`}</div>;
             },
             userdel: (args) => {
