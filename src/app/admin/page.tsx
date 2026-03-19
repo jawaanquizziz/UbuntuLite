@@ -79,11 +79,12 @@ export default function AdminPage() {
             fetchVisits();
             fetchTerminalUsers();
 
-            // Polling for real-time-ish updates
+            // Polling for real-time updates (every 5 seconds)
             const interval = setInterval(() => {
                 fetchVisits();
                 fetchTerminalUsers();
-            }, 15000); // 15 seconds
+                fetchFeedbacks();
+            }, 5000); 
 
             return () => clearInterval(interval);
         }
@@ -224,9 +225,22 @@ export default function AdminPage() {
             {/* Main Content */}
             <div style={{ flex: 1, padding: "48px 64px", overflowY: "auto", background: "radial-gradient(circle at top right, rgba(233, 84, 32, 0.05), transparent 40%)" }}>
                 <header style={{ marginBottom: "48px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                    <div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         <h1 style={{ margin: 0, fontSize: "36px", fontWeight: 800, letterSpacing: "-1px" }}>Overview</h1>
-                        <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "8px", fontSize: "16px" }}>Real-time statistics for UbuntuLite OS</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(34, 197, 94, 0.1)", padding: "4px 10px", borderRadius: "100px", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
+                                <div style={{ width: "6px", height: "6px", background: "#22c55e", borderRadius: "50%", boxShadow: "0 0 10px #22c55e", animation: "pulse 2s infinite" }}></div>
+                                <span style={{ fontSize: "11px", color: "#22c55e", fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>LiveSync Active</span>
+                            </div>
+                            <p style={{ color: "rgba(255,255,255,0.4)", margin: 0, fontSize: "14px" }}>Real-time statistics for UbuntuLite OS</p>
+                        </div>
+                        <style>{`
+                            @keyframes pulse {
+                                0% { opacity: 1; transform: scale(1); }
+                                50% { opacity: 0.5; transform: scale(0.9); }
+                                100% { opacity: 1; transform: scale(1); }
+                            }
+                        `}</style>
                     </div>
                 </header>
 

@@ -9,9 +9,12 @@ export async function GET() {
         await dbConnect();
         const users = await TerminalUser.find().sort({ timestamp: -1 });
         return NextResponse.json(users);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Failed to fetch terminal users:', error);
-        return NextResponse.json({ error: 'Failed to fetch terminal users' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Failed to fetch terminal users',
+            details: error.message 
+        }, { status: 500 });
     }
 }
 
@@ -24,8 +27,11 @@ export async function POST(req: Request) {
         await dbConnect();
         const user = await TerminalUser.create({ name });
         return NextResponse.json(user);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Failed to save terminal user:', error);
-        return NextResponse.json({ error: 'Failed to save terminal user' }, { status: 500 });
+        return NextResponse.json({ 
+            error: 'Failed to save terminal user',
+            details: error.message 
+        }, { status: 500 });
     }
 }
