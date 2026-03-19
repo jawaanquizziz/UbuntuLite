@@ -43,17 +43,17 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
     }, []);
 
     useEffect(() => {
+        // ALWAYS show name prompt when terminal opens per user request
+        setShowNamePrompt(true);
+        // We still check localStorage just to pre-fill or sync, but we always ask
         const savedName = localStorage.getItem("ubuntulite_terminal_name");
         if (savedName) {
-            // No longer printing welcome message in terminal per user request
             // Sync again to ensure admin panel shows current active session
             fetch("/api/terminal-users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: savedName }),
             }).catch(e => console.error("Failed to sync name on open", e));
-        } else {
-            setShowNamePrompt(true);
         }
     }, []);
 
@@ -63,6 +63,7 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
         // No longer setting terminalUserName or printing welcome message in terminal per user request
         // We just store it in localStorage and sync it with the database
         localStorage.setItem("ubuntulite_terminal_name", name);
+        window.dispatchEvent(new Event("ubuntulite_name_update"));
         setShowNamePrompt(false);
         
         // Sync with database
@@ -1460,7 +1461,7 @@ ${terminalUser}    1235  0.0  0.1  48640  5000 pts/0    R+   12:31   0:00 ps aux
                     <span className="minimize" onClick={onMinimize}></span>
                     <span className="maximize" onClick={onMaximize}></span>
                 </div>
-                <div className="terminal-title">{displayUser}@{terminalHost}: {displayPath}</div>
+                <div className="terminal-title">{terminalUserName ? `${terminalUserName} Workspace` : "Terminal"}</div>
                 <div className="terminal-actions">
                     <button className="action-btn" onClick={() => setIsDarkMode(!isDarkMode)}>
                         {isDarkMode ? (

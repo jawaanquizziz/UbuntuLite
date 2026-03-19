@@ -13,7 +13,7 @@ import BootScreen from "./BootScreen";
 import FullScreenPrompt from "./FullScreenPrompt";
 import { loadFs } from "@/lib/MockFs";
 
-function TopBar({ onLogout, onReboot, onSleep }: { onLogout: () => void, onReboot: () => void, onSleep: () => void }) {
+function TopBar({ onLogout, onReboot, onSleep, activeName }: { onLogout: () => void, onReboot: () => void, onSleep: () => void, activeName?: string }) {
     const [now, setNow] = useState(new Date());
     const [powerMenuOpen, setPowerMenuOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -57,7 +57,9 @@ function TopBar({ onLogout, onReboot, onSleep }: { onLogout: () => void, onReboo
             {/* Left: Logo + Activities */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <img src="/ubuntulite.png" alt="UbuntuLite" style={{ width: "18px", height: "18px", filter: "drop-shadow(0 0 5px rgba(233,84,32,0.7))" }} />
-                <span style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "0.03em", color: "rgba(255,255,255,0.9)", display: typeof window !== 'undefined' && window.innerWidth < 480 ? 'none' : 'inline' }}>Activities</span>
+                <span style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "0.03em", color: "rgba(255,255,255,0.9)", display: typeof window !== 'undefined' && window.innerWidth < 480 ? 'none' : 'inline' }}>
+                    {activeName ? `${activeName} Workspace` : "Activities"}
+                </span>
             </div>
 
             {/* Center: date + clock pill */}
@@ -254,7 +256,17 @@ export default function Desktop({ initialUser = "root", onLogout, onReboot }: { 
     const [isMounted, setIsMounted] = useState(false);
     const [desktopCtx, setDesktopCtx] = useState<{ x: number, y: number } | null>(null);
     const [showDesktopIcons, setShowDesktopIcons] = useState(true);
-    const [isShuttingDown, setIsShuttingDown] = useState(false);
+    const [activeName, setActiveName] = useState("");
+
+    useEffect(() => {
+        const updateName = () => {
+            const name = localStorage.getItem("ubuntulite_terminal_name");
+            if (name) setActiveName(name);
+        };
+        updateName();
+        window.addEventListener("ubuntulite_name_update", updateName);
+        return () => window.removeEventListener("ubuntulite_name_update", updateName);
+    }, []);
 
     React.useEffect(() => {
         const closeCtx = () => setDesktopCtx(null);
@@ -445,7 +457,7 @@ export default function Desktop({ initialUser = "root", onLogout, onReboot }: { 
             {!isBooting && <FullScreenPrompt />}
 
             {/* ── Top Bar ── */}
-            <TopBar onLogout={onLogout} onReboot={onReboot} onSleep={onLogout} />
+            <TopBar onLogout={onLogout} onReboot={onReboot} onSleep={onLogout} activeName={activeName} />
 
             {/* ── Workspace (everything below the bar) ── */}
             <div
