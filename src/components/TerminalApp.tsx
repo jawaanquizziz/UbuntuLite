@@ -45,12 +45,7 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
     useEffect(() => {
         const savedName = localStorage.getItem("ubuntulite_terminal_name");
         if (savedName) {
-            setTerminalUserName(savedName);
-            print(
-                <div style={{ color: "#E95420", fontWeight: 700, marginBottom: "8px", fontSize: "14px" }}>
-                    Hello Welcome to UbuntuLite's Terminal, {savedName}!
-                </div>
-            );
+            // No longer printing welcome message in terminal per user request
             // Sync again to ensure admin panel shows current active session
             fetch("/api/terminal-users", {
                 method: "POST",
@@ -65,17 +60,11 @@ export default function TerminalApp({ onClose, onMinimize, onMaximize, isMaximiz
     const handleNameSubmit = async () => {
         if (!nameInput.trim()) return;
         const name = nameInput.trim();
-        setTerminalUserName(name);
+        // No longer setting terminalUserName or printing welcome message in terminal per user request
+        // We just store it in localStorage and sync it with the database
         localStorage.setItem("ubuntulite_terminal_name", name);
         setShowNamePrompt(false);
         
-        // Welcome message
-        print(
-            <div style={{ color: "#E95420", fontWeight: 700, marginBottom: "8px", fontSize: "14px" }}>
-                Hello Welcome to UbuntuLite's Terminal, {name}!
-            </div>
-        );
-
         // Sync with database
         try {
             await fetch("/api/terminal-users", {
