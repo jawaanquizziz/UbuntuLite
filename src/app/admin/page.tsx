@@ -22,6 +22,7 @@ export default function AdminPage() {
     const [feedbacks, setFeedbacks] = useState<FeedbackInfo[]>([]);
     const [totalVisits, setTotalVisits] = useState<number>(0);
     const [terminalUsers, setTerminalUsers] = useState<TerminalUserInfo[]>([]);
+    const [fetchError, setFetchError] = useState<string | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     const fetchFeedbacks = async () => {
@@ -50,13 +51,24 @@ export default function AdminPage() {
 
     const fetchTerminalUsers = async () => {
         try {
+            setFetchError(null);
             const res = await fetch("/api/terminal-users");
             if (res.ok) {
                 const data = await res.json();
-                setTerminalUsers(data);
+                console.log("Terminal Users Data:", data);
+                if (Array.isArray(data)) {
+                    setTerminalUsers(data);
+                } else {
+                    console.error("Data is not an array:", data);
+                    setFetchError("Invalid data format received");
+                    setTerminalUsers([]);
+                }
+            } else {
+                setFetchError(`Server error: ${res.status}`);
             }
         } catch (e) {
             console.error(e);
+            setFetchError("Failed to fetch data");
         }
     };
 
@@ -366,7 +378,13 @@ export default function AdminPage() {
                             borderRadius: "28px", border: "1px solid rgba(255,255,255,0.06)",
                             overflow: "hidden"
                         }}>
-                            {terminalUsers.length === 0 ? (
+                            {fetchError ? (
+                                <div style={{ textAlign: "center", padding: "64px", color: "#ff4d4d", background: "rgba(255, 60, 60, 0.05)" }}>
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginBottom: "16px" }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    <p style={{ fontWeight: 600 }}>{fetchError}</p>
+                                    <button onClick={fetchTerminalUsers} style={{ marginTop: "16px", background: "#E95420", color: "white", border: "none", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: 600 }}>Try Again</button>
+                                </div>
+                            ) : terminalUsers.length === 0 ? (
                                 <div style={{ textAlign: "center", padding: "64px", color: "rgba(255,255,255,0.2)" }}>
                                     <p>No user names recorded</p>
                                 </div>
